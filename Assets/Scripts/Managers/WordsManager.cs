@@ -88,7 +88,7 @@ public class WordsManager : MonoBehaviour
             // Read the text contents of the JSON file
             string jsonText = jsonFile.text;
 
-            Debug.Log(jsonText);
+            //Debug.Log(jsonText);
 
             try
             {

@@ -17,7 +17,7 @@ public class GameStatisticsCalculator : MonoBehaviour
 
     public TextMeshProUGUI statisticsText;
 
-    public void CalculateGameStatistics(string userInput, string initialString, float gameTimeInSeconds)
+    public GameStatistics CalculateGameStatistics(string userInput, string initialString, float gameTimeInSeconds)
     {
         GameStatistics statistics = new GameStatistics();
 
@@ -42,7 +42,7 @@ public class GameStatisticsCalculator : MonoBehaviour
         statistics.accuracy = (float)statistics.correctCharactersTyped / statistics.totalCharactersTyped * 100f;
 
         // Calculate typing speed in characters per minute
-        statistics.typingSpeed = (float)statistics.totalCharactersTyped / gameTimeInSeconds * 60f;
+        statistics.typingSpeed = ((float)statistics.totalCharactersTyped - (float)statistics.incorrectCharactersTyped) / gameTimeInSeconds * 60f;
 
         // Calculate words per minute (assuming average word length of 5 characters)
         statistics.wordsPerMinute = Mathf.RoundToInt(statistics.typingSpeed / 5f);
@@ -54,5 +54,7 @@ public class GameStatisticsCalculator : MonoBehaviour
             + "\nAccuracy: " + statistics.accuracy.ToString("F1") + "%"
             + "\nTyping Speed: " + statistics.typingSpeed.ToString("F1") + " characters per minute"
             + "\nWords Per Minute: " + statistics.wordsPerMinute;
+
+        return statistics;
     }
 }

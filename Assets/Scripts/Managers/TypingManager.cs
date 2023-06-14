@@ -1,33 +1,71 @@
 using Sirenix.OdinInspector;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Windows;
+using static GameStatisticsCalculator;
+using ColorUtility = UnityEngine.ColorUtility;
 using Input = UnityEngine.Input;
 
 public class TypingManager : MonoBehaviour
 {
+    #region SINGLETON
+
+    public static TypingManager Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    #endregion
+
     [ShowInInspector]
     public List<string> generatedWords = new List<string>();
-    public string initialString;
+    public string targetString;
     public string userInput;
     public TextMeshProUGUI text;
+    public float cursorBlinkInterval = 0.5f;
+    public float gameStartTime = 30;
+    public GameStatistics GameStats;
 
     float gameTimeInSeconds = 0f;
     GameStatisticsCalculator calculator;
     bool gameStarted;
 
+    [SerializeField]
+    private Color correctColor = Color.green;
+
+    [SerializeField]
+    private Color incorrectColor = Color.red;
+
+    [SerializeField]
+    private Color remainingColor = Color.grey;
+
+    [SerializeField]
+    private Color cursorColor = Color.yellow;
+
+    private bool cursorVisible = true;
+    private float cursorBlinkTimer = 0f;
+
+    string correctColorHex;
+    string incorrectColorHex;
+    string remainingColorHex;
+    string cursorColorHex;
+
     private void Start()
     {
         calculator = GetComponent<GameStatisticsCalculator>();
-        generatedWords = WordsManager.Instance.getRandomWords(10);
+        generatedWords = WordsManager.Instance.getRandomWords(20);
 
-        foreach(string word in generatedWords)
-        {
-            initialString += word + " ";
-        }
-        initialString = initialString.Trim();
+        targetString = string.Join(" ", generatedWords.ToArray());
+
+        UpdateColors();
+        StartCoroutine(updateTextCoroutine());
     }
+
+
 
     private void Update()
     {
@@ -36,10 +74,31 @@ public class TypingManager : MonoBehaviour
         if (gameStarted)
         {
             gameTimeInSeconds += Time.deltaTime;
-            //if (string.IsNullOrEmpty(userInput) || string.IsNullOrEmpty(initialString))
-            //    return;
 
-            calculator.CalculateGameStatistics(userInput, initialString, gameTimeInSeconds);
+            if (gameTimeInSeconds < gameStartTime)
+            {
+                gameStartTime -= Time.deltaTime * 2;
+                GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameStartTime);
+            }
+            else
+                GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameTimeInSeconds);
+        }
+
+        // Update the cursor blink
+        cursorBlinkTimer += Time.deltaTime;
+        if (cursorBlinkTimer >= cursorBlinkInterval)
+        {
+            cursorVisible = !cursorVisible;
+            cursorBlinkTimer = 0f;
+        }
+    }
+
+    IEnumerator updateTextCoroutine()
+    {
+        while (true)
+        {
+            compareInput();
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
@@ -60,42 +119,62 @@ public class TypingManager : MonoBehaviour
                 userInput += Input.inputString;
             }
         }
-
-        compareInput();
     }
 
     void compareInput()
     {
         string coloredText = "";
 
-        int minLength = Mathf.Min(initialString.Length, userInput.Length);
+        int minLength = Mathf.Min(targetString.Length, userInput.Length);
 
         // Compare each character in the strings
         for (int i = 0; i < minLength; i++)
         {
-            if (initialString[i] == userInput[i])
+            if (targetString[i] == userInput[i])
             {
                 // Correct character, color it green
-                coloredText += "<color=green>" + userInput[i] + "</color>";
+                coloredText += $"<color={correctColorHex}>{userInput[i]}</color>";
             }
             else
             {
                 // Incorrect character, color it red
-                coloredText += "<color=red>" + initialString[i] + "</color>";
+                coloredText += $"<color={incorrectColorHex}>{targetString[i]}</color>";
             }
         }
 
+        // Add the cursor character if it should be visible
+        coloredText += GetCursorCharacter();
+
         // Append the remaining characters from the longer string in gray color
-        if (initialString.Length > userInput.Length)
+        if (targetString.Length > userInput.Length)
         {
-            coloredText += "<color=#808080>" + initialString.Substring(userInput.Length) + "</color>";
+            coloredText += $"<color={remainingColorHex}>{targetString.Substring(userInput.Length)}</color>";
         }
-        else if (userInput.Length > initialString.Length)
+        else if (userInput.Length > targetString.Length)
         {
-            coloredText += "<color=#808080>" + userInput.Substring(initialString.Length) + "</color>";
+            coloredText += $"<color={remainingColorHex}>{userInput.Substring(targetString.Length)}</color>";
         }
+
+
 
         // Update the display text with colored characters
         text.text = coloredText;
+    }
+
+    private void UpdateColors()
+    {
+        correctColorHex = "#" + ColorUtility.ToHtmlStringRGB(correctColor);
+        incorrectColorHex = "#" + ColorUtility.ToHtmlStringRGB(incorrectColor);
+        remainingColorHex = "#" + ColorUtility.ToHtmlStringRGB(remainingColor);
+        cursorColorHex = "#" + ColorUtility.ToHtmlStringRGB(cursorColor);
+    }
+
+    private string GetCursorCharacter()
+    {
+        // Customize the cursor character as needed
+        if (cursorVisible)
+            return $"<color={cursorColorHex}>|</color>";
+        else
+            return "|";
     }
 }
