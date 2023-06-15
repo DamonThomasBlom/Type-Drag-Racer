@@ -10,17 +10,6 @@ using Input = UnityEngine.Input;
 
 public class TypingManager : MonoBehaviour
 {
-    #region SINGLETON
-
-    public static TypingManager Instance;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
-
-    #endregion
-
     [ShowInInspector]
     public List<string> generatedWords = new List<string>();
     public string targetString;
@@ -28,11 +17,19 @@ public class TypingManager : MonoBehaviour
     public TextMeshProUGUI text;
     public float cursorBlinkInterval = 0.5f;
     public float gameStartTime = 30;
+
+    [ShowInInspector]
     public GameStatistics GameStats;
 
+    public GameStatisticsCalculator calculator;
+
+    public float averageCPM = 500;
+    public float averageCarSpeed = 300; // kph
+
+    [HideInInspector]
+    public bool gameStarted;
+
     float gameTimeInSeconds = 0f;
-    GameStatisticsCalculator calculator;
-    bool gameStarted;
 
     [SerializeField]
     private Color correctColor = Color.green;
@@ -54,8 +51,13 @@ public class TypingManager : MonoBehaviour
     string remainingColorHex;
     string cursorColorHex;
 
-    private void Start()
+    #region SINGLETON
+
+    public static TypingManager Instance;
+
+    private void Awake()
     {
+        Instance = this;
         calculator = GetComponent<GameStatisticsCalculator>();
         generatedWords = WordsManager.Instance.getRandomWords(20);
 
@@ -65,7 +67,7 @@ public class TypingManager : MonoBehaviour
         StartCoroutine(updateTextCoroutine());
     }
 
-
+    #endregion
 
     private void Update()
     {
@@ -91,6 +93,14 @@ public class TypingManager : MonoBehaviour
             cursorVisible = !cursorVisible;
             cursorBlinkTimer = 0f;
         }
+    }
+
+    public float getGameTime()
+    {
+        if (gameTimeInSeconds < gameStartTime)
+            return gameStartTime;
+        else
+            return gameTimeInSeconds;
     }
 
     IEnumerator updateTextCoroutine()
