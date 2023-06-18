@@ -3,34 +3,33 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
-using static GameStatisticsCalculator;
+using UnityEngine.PlayerLoop;
 
 public class AIPlayer : MonoBehaviour
 {
     public enum DifficultyLevel
     {
+        VeryEasy,
         Easy,
         Medium,
-        Hard
+        Hard,
+        VeryHard,
+        Expert
     }
 
     public DifficultyLevel difficultyLevel; // Enum to represent the difficulty level
-    public float easyTypingInterval = 2f; // Typing interval for the easy difficulty
-    public float mediumTypingInterval = 1.5f; // Typing interval for the medium difficulty
-    public float hardTypingInterval = 1f; // Typing interval for the hard difficulty
-    public float minRandomFactor = -0.5f; // Minimum random factor for the typing interval
-    public float maxRandomFactor = 0.5f; // Maximum random factor for the typing interval
-
     public TextMeshProUGUI speedText;
 
     [ShowInInspector]
     public GameStatistics Stats;
 
-    private float typingTimer = 0f;
+    private float typingTimer = 10f;
     private float typingInterval;
     private string AIInput = string.Empty;
     private List<string> correctTargetSentence = new List<string>();
+    public float currentSpeed = 0;
 
     private void Start()
     {
@@ -38,6 +37,7 @@ public class AIPlayer : MonoBehaviour
         SetTypingInterval();
 
         correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
+        StartCoroutine(updateSpeedText());
     }
 
     private void Update()
@@ -54,19 +54,41 @@ public class AIPlayer : MonoBehaviour
 
             // Reset the typing timer
             typingTimer = 0f;
+            StartCoroutine(lerpSpeed());
         }
 
         // Update the typing timer
         typingTimer += Time.deltaTime;
+    }
 
-        Stats = TypingManager.Instance.calculator.CalculateGameStatistics(AIInput, TypingManager.Instance.targetString, TypingManager.Instance.getGameTime());
-
-        float currentSpeed = Stats.wordsPerMinute / TypingManager.Instance.averageCPM * TypingManager.Instance.averageCarSpeed;
-
-        speedText.text = "km/h: " + currentSpeed.ToString("F0");
-
+    private void FixedUpdate()
+    {
         // Move the player forward based on the current speed
-        transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
+        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.fixedDeltaTime);
+    }
+
+    IEnumerator lerpSpeed()
+    {
+        float elapsedTime = 0;
+        float startSpeed = currentSpeed;
+        Stats = TypingManager.Instance.calculator.CalculateAIGameStatistics(AIInput, TypingManager.Instance.targetString, TypingManager.Instance.getGameTime());
+        float targetSpeed = Stats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
+
+        while (elapsedTime < typingInterval)
+        {
+            elapsedTime += Time.deltaTime;
+            currentSpeed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / typingInterval);
+            yield return null;
+        }
+    }
+
+    IEnumerator updateSpeedText()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+            speedText.text = "km/h: " + currentSpeed.ToString("F0");
+        }
     }
 
     private void SetTypingInterval()
@@ -74,24 +96,28 @@ public class AIPlayer : MonoBehaviour
         // Set the typing interval based on the selected difficulty level
         switch (difficultyLevel)
         {
+            case DifficultyLevel.VeryEasy:
+                typingInterval = GameManager.Instance.veryEasyTypingInterval;
+                break;
             case DifficultyLevel.Easy:
-                typingInterval = easyTypingInterval;
+                typingInterval = GameManager.Instance.easyTypingInterval;
                 break;
             case DifficultyLevel.Medium:
-                typingInterval = mediumTypingInterval;
+                typingInterval = GameManager.Instance.mediumTypingInterval;
                 break;
             case DifficultyLevel.Hard:
-                typingInterval = hardTypingInterval;
+                typingInterval = GameManager.Instance.hardTypingInterval;
                 break;
-            default:
-                typingInterval = easyTypingInterval;
+            case DifficultyLevel.VeryHard:
+                typingInterval = GameManager.Instance.veryHardTypingInterval;
+                break;
+            case DifficultyLevel.Expert:
+                typingInterval = GameManager.Instance.expertTypingInterval;
                 break;
         }
 
         // Add a random factor to the typing interval
-        float randomFactor = Random.Range(minRandomFactor, maxRandomFactor);
+        float randomFactor = Random.Range(GameManager.Instance.minRandomFactor, GameManager.Instance.maxRandomFactor);
         typingInterval += randomFactor;
     }
 }
-
-

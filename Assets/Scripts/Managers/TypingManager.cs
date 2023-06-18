@@ -10,21 +10,21 @@ using Input = UnityEngine.Input;
 
 public class TypingManager : MonoBehaviour
 {
-    [ShowInInspector]
-    public List<string> generatedWords = new List<string>();
+    //[ShowInInspector]
+    private List<string> generatedWords = new List<string>();
     public string targetString;
     public string userInput;
     public TextMeshProUGUI text;
     public float cursorBlinkInterval = 0.5f;
     public float gameStartTime = 30;
 
-    [ShowInInspector]
+    //[ShowInInspector]
     public GameStatistics GameStats;
 
     public GameStatisticsCalculator calculator;
 
-    public float averageCPM = 500;
-    public float averageCarSpeed = 300; // kph
+    public float fastestWPM = 500;
+    public float fastestCarSpeed = 300; // kph
 
     [HideInInspector]
     public bool gameStarted;
@@ -59,7 +59,7 @@ public class TypingManager : MonoBehaviour
     {
         Instance = this;
         calculator = GetComponent<GameStatisticsCalculator>();
-        generatedWords = WordsManager.Instance.getRandomWords(20);
+        generatedWords = WordsManager.Instance.getRandomWords(100);
 
         targetString = string.Join(" ", generatedWords.ToArray());
 
@@ -79,7 +79,7 @@ public class TypingManager : MonoBehaviour
 
             if (gameTimeInSeconds < gameStartTime)
             {
-                gameStartTime -= Time.deltaTime * 2;
+                gameStartTime -= Time.deltaTime * 4;
                 GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameStartTime);
             }
             else
@@ -103,6 +103,34 @@ public class TypingManager : MonoBehaviour
             return gameTimeInSeconds;
     }
 
+    int currentWordIndex = 0;
+
+    [Button]
+    public void nextWord()
+    {
+        if (currentWordIndex < generatedWords.Count)
+        {
+            userInput += generatedWords[currentWordIndex] + " ";
+            currentWordIndex++;
+        }
+    }
+
+    [Button]
+    public void previousWord()
+    {
+        if (currentWordIndex > 0)
+        {
+            // Find the index of the last space character in the userInput string
+            userInput = userInput.Trim();
+            int lastSpaceIndex = userInput.LastIndexOf(" ");
+
+            // Remove the last word (including the space) from the userInput string
+            userInput = userInput.Substring(0, lastSpaceIndex) + " ";
+
+            currentWordIndex--;
+        }
+    }
+
     IEnumerator updateTextCoroutine()
     {
         while (true)
@@ -119,7 +147,8 @@ public class TypingManager : MonoBehaviour
             gameStarted = true;
             if (Input.GetKeyDown(KeyCode.Backspace))
             {
-                userInput = userInput.Substring(0, userInput.Length - 1);
+                if (userInput.Length > 0)
+                    userInput = userInput.Substring(0, userInput.Length - 1);
                 return;
             }
 
@@ -148,7 +177,10 @@ public class TypingManager : MonoBehaviour
             else
             {
                 // Incorrect character, color it red
-                coloredText += $"<color={incorrectColorHex}>{targetString[i]}</color>";
+                if (string.IsNullOrWhiteSpace(targetString[i].ToString()))
+                    coloredText += $"<color={incorrectColorHex}>{userInput[i]}</color>";
+                else
+                    coloredText += $"<color={incorrectColorHex}>{targetString[i]}</color>";
             }
         }
 
