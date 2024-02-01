@@ -14,8 +14,7 @@ public class WorldGenerator : MonoBehaviour
     public int playerCount = 2;
 
     [Header("Settings")]
-    public int maxPlayers = 2;
-    public int maxChunks = 10;
+    public int maxRoadChunks = 10;
     public int maxBuildings = 20;
     public float buildingSpawnDistance = 100;
     public float validBuildingDistance = 10;
@@ -27,16 +26,7 @@ public class WorldGenerator : MonoBehaviour
     public Transform player;
 
     [Space(10f)]
-    public GameObject start2;
-    public GameObject start4;
-    public GameObject start6;
-    public GameObject start8;
-    public GameObject road2;
-    public GameObject road4;
-    public GameObject road6;
-    public GameObject road8;
-
-    public List<GameObject> buildings = new List<GameObject>();
+    public PrefabReferences prefabReferences;
 
     private List<GameObject> roadChunks = new List<GameObject>();
     // Key: Prefab  Value: Size
@@ -49,7 +39,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
-        SetupChunks();
+        SetupRoadChunks();
         SetupBuilding();
     }
 
@@ -59,26 +49,34 @@ public class WorldGenerator : MonoBehaviour
 
         for (int i = 0; i < maxBuildings; i++)
         {
-            int randomIndex = UnityEngine.Random.Range(0, buildings.Count);
-            GameObject building = buildings[randomIndex];
+            int randomIndex = UnityEngine.Random.Range(0, prefabReferences.buildings.Count);
+            GameObject building = prefabReferences.buildings[randomIndex];
             MeshRenderer meshRenderer = building.GetComponentInChildren<MeshRenderer>();
 
-            if (meshRenderer != null)
-            {
-                // Get the bounds of the GameObject's mesh
-                Bounds bounds = meshRenderer.bounds;
+            // Get all the Mesh Renderers attached to the object
+            MeshRenderer[] meshRenderers = building.GetComponentsInChildren<MeshRenderer>();
 
-                // Extract the size from the bounds
-                Vector3 size = bounds.size;
-                GameObject spawnedBuilding = Instantiate(building, new Vector3(-999, 0, 0), Quaternion.identity);
-                spawnedBuilding.transform.SetParent(this.transform);
-                spawnedBuilding.SetActive(true);
-                buidlingSizes.Add(new KeyValuePair<GameObject, float>(spawnedBuilding, size.x));
-            }
-            else
+            // Create a new Bounds object to store the combined bounds
+            Bounds combinedBounds = new Bounds();
+
+            // Iterate through each Mesh Renderer and expand the combined bounds
+            foreach (MeshRenderer renderer in meshRenderers)
             {
-                Debug.LogError("Mesh Renderer component not found!");
+                if (renderer.bounds.size != Vector3.zero)
+                {
+                    if (combinedBounds.size == Vector3.zero)
+                        combinedBounds = renderer.bounds;
+                    else
+                        combinedBounds.Encapsulate(renderer.bounds);
+                }
             }
+
+            // Extract the size from the bounds
+            Vector3 size = combinedBounds.size;
+            GameObject spawnedBuilding = Instantiate(building, new Vector3(-999, 0, -999), Quaternion.identity);
+            spawnedBuilding.transform.SetParent(this.transform);
+            spawnedBuilding.SetActive(true);
+            buidlingSizes.Add(new KeyValuePair<GameObject, float>(spawnedBuilding, size.x));
         }
     }
 
@@ -94,13 +92,13 @@ public class WorldGenerator : MonoBehaviour
         if (previousBuildingPosition < player.position.z + buildingSpawnDistance)
         {
             KeyValuePair<GameObject, float> building = GetRandomBuilding();
-            float newBuildingPosition = previousBuildingPosition + building.Value + 1;
+            float newBuildingPosition = previousBuildingPosition + building.Value;
             building.Key.transform.position = OffsetOneValueBuilding(10, newBuildingPosition);
             previousBuildingPosition = newBuildingPosition;
         }
     }
 
-    private void SetupChunks()
+    private void SetupRoadChunks()
     {
         if (player == null)
         {
@@ -109,12 +107,14 @@ public class WorldGenerator : MonoBehaviour
         }
 
         previousChunkPosition = 0;
-        startRoad = Instantiate(GetStartRoadForPlayers(playerCount), OffsetOneValue(previousChunkPosition), Quaternion.identity);
+        startRoad = Instantiate(prefabReferences.GetStartRoadPrefab(playerCount), OffsetZValue(previousChunkPosition), Quaternion.identity);
 
-        for (int i = 0; i < maxChunks; i++)
+        for (int i = 0; i < maxRoadChunks; i++)
         {
             previousChunkPosition += chunkMeasurementSize;
-            roadChunks.Add(Instantiate(GetRoadForPlayers(playerCount), OffsetOneValue(previousChunkPosition), Quaternion.identity));
+            GameObject roadChunk = Instantiate(prefabReferences.GetRoadPrefab(playerCount), OffsetZValue(previousChunkPosition), Quaternion.identity);
+            roadChunk.transform.parent = this.transform;
+            roadChunks.Add(roadChunk);
         }
     }
 
@@ -123,7 +123,7 @@ public class WorldGenerator : MonoBehaviour
         if (player.position.z > previousChunkPosition + chunkMeasurementSize + startPoolingDistance)
         {
             previousChunkPosition += chunkMeasurementSize;
-            roadChunks[GetNextIndex()].transform.position = OffsetOneValue(previousChunkPosition);
+            roadChunks[GetNextIndex()].transform.position = OffsetZValue(previousChunkPosition);
         }
     }
 
@@ -150,61 +150,19 @@ public class WorldGenerator : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, buidlingSizes.Count - 1);
 
         // The building is not in valid range of player
-        if ((buidlingSizes[randomIndex].Key.transform.position.z - validBuildingDistance) > player.position.z)
+        if ((buidlingSizes[randomIndex].Key.transform.position.z + validBuildingDistance) > player.position.z)
             return GetRandomBuilding();
 
         return buidlingSizes[randomIndex];
     }
 
-    private Vector3 OffsetOneValue(float offset)
+    private Vector3 OffsetZValue(float offset)
     {
         return new Vector3(0, 0, offset);
     }
 
     private Vector3 OffsetOneValueBuilding(float leftOffset, float offset)
     {
-        return new Vector3(-leftOffset, 0, offset);
-    }
-
-    private GameObject GetStartRoadForPlayers(int playerCount)
-    {
-        switch (maxPlayers)
-        {
-            case 2:
-                return start2;
-
-            case 4:
-                return start4;
-
-            case 6:
-                return start6;
-
-            case 8:
-                return start8;
-
-                default:
-                return start2;
-        }
-    }
-
-    private GameObject GetRoadForPlayers(int playerCount)
-    {
-        switch (maxPlayers)
-        {
-            case 2:
-                return road2;
-
-            case 4:
-                return road4;
-
-            case 6:
-                return road6;
-
-            case 8:
-                return road8;
-
-            default:
-                return road2;
-        }
+        return new Vector3(-leftOffset, 0, offset + 0.5f);
     }
 }

@@ -1,11 +1,11 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 using static GameStatisticsCalculator;
 using ColorUtility = UnityEngine.ColorUtility;
 using Input = UnityEngine.Input;
@@ -16,8 +16,8 @@ public class TypingManager : MonoBehaviour
     private List<string> generatedWords = new List<string>();
     public string targetString;
     public string userInput;
-    //public TextMeshProUGUI text;
-    public TMP_InputField inputField;
+    public TextMeshProUGUI text;
+    //public TMP_InputField inputField;
     public float cursorBlinkInterval = 0.5f;
     public float gameStartTime = 30;
 
@@ -68,7 +68,7 @@ public class TypingManager : MonoBehaviour
 
         UpdateColors();
         StartCoroutine(updateTextCoroutine());
-        inputField.caretColor = cursorColor;
+        //inputField.caretColor = cursorColor;
         SelectInputField();
     }
 
@@ -98,8 +98,6 @@ public class TypingManager : MonoBehaviour
             cursorVisible = !cursorVisible;
             cursorBlinkTimer = 0f;
         }
-
-
     }
 
     public float getGameTime()
@@ -142,21 +140,21 @@ public class TypingManager : MonoBehaviour
     {
         while (true)
         {
-            if (!inputField.isFocused)
-            {
-                SelectInputField();
-            }
+            //if (!inputField.isFocused)
+            //{
+            //    SelectInputField();
+            //}
 
             compareInput();
-            yield return new WaitForSeconds(1f);
+            yield return null;
         }
     }
 
     private void SelectInputField()
     {
         // Set the input field as the currently selected object
-        inputField.Select();
-        inputField.ActivateInputField();
+        //inputField.Select();
+        //inputField.ActivateInputField();
     }
 
     void checkInput()
@@ -169,7 +167,7 @@ public class TypingManager : MonoBehaviour
                 if (userInput.Length > 0)
                 {
                     userInput = userInput.Substring(0, userInput.Length - 1);
-                    compareInput();
+                    //compareInput();
                 }
                 return;
             }
@@ -178,7 +176,7 @@ public class TypingManager : MonoBehaviour
             if (Input.inputString.Length == 1) 
             {
                 userInput += Input.inputString;
-                compareInput();
+                //compareInput();
             }
         }
     }
@@ -189,23 +187,68 @@ public class TypingManager : MonoBehaviour
 
         int minLength = Mathf.Min(targetString.Length, userInput.Length);
 
+        //// Compare each character in the strings
+        //for (int i = 0; i < minLength; i++)
+        //{
+        //    if (targetString[i] == userInput[i])
+        //    {
+        //        // Correct character, color it green
+        //        coloredTextBuilder.Append($"<color={correctColorHex}>{userInput[i]}</color>");
+        //    }
+        //    else
+        //    {
+        //        // Incorrect character, color it red
+        //        if (string.IsNullOrWhiteSpace(targetString[i].ToString()))
+        //            coloredTextBuilder.Append($"<color={incorrectColorHex}>{userInput[i]}</color>");
+        //        else
+        //            coloredTextBuilder.Append($"<color={incorrectColorHex}>{targetString[i]}</color>");
+        //    }
+        //}
+
+        bool isCorrectSequence = false;
+        bool isIncorrectSequence = false;
+
         // Compare each character in the strings
         for (int i = 0; i < minLength; i++)
         {
             if (targetString[i] == userInput[i])
             {
-                // Correct character, color it green
-                coloredTextBuilder.Append($"<color={correctColorHex}>{userInput[i]}</color>");
+                if (isCorrectSequence)
+                    coloredTextBuilder.Append(userInput[i]);
+                else 
+                {
+                    if (isIncorrectSequence)
+                        // Close off incorrect colour
+                        coloredTextBuilder.Append($"</color>");
+
+                    coloredTextBuilder.Append($"<color={correctColorHex}>{userInput[i]}");
+                }
+                isCorrectSequence = true;
+                isIncorrectSequence = false;
             }
             else
             {
-                // Incorrect character, color it red
-                if (string.IsNullOrWhiteSpace(targetString[i].ToString()))
-                    coloredTextBuilder.Append($"<color={incorrectColorHex}>{userInput[i]}</color>");
+                char appendChar = string.IsNullOrWhiteSpace(targetString[i].ToString()) ? userInput[i] : targetString[i];
+
+                if (isIncorrectSequence)
+                    coloredTextBuilder.Append(appendChar);
                 else
-                    coloredTextBuilder.Append($"<color={incorrectColorHex}>{targetString[i]}</color>");
+                {
+                    if (isCorrectSequence)
+                        // Close off correct colour
+                        coloredTextBuilder.Append($"</color>");
+
+                    coloredTextBuilder.Append($"<color={incorrectColorHex}>{appendChar}");
+                }
+
+                isCorrectSequence = false;
+                isIncorrectSequence = true;
             }
         }
+        // Close off any colours
+        coloredTextBuilder.Append($"</color>");
+
+        coloredTextBuilder.Append(GetCursorCharacter());
 
         // Append the remaining characters from the longer string in gray color
         if (targetString.Length > userInput.Length)
@@ -220,10 +263,11 @@ public class TypingManager : MonoBehaviour
         // Update the display text with colored characters
         string coloredText = coloredTextBuilder.ToString();
         //inputField.text = coloredText;
-        inputField.SetTextWithoutNotify(coloredText);
+        //inputField.SetTextWithoutNotify(coloredText);
+        text.SetText(coloredText);
 
-        if (inputField.caretPosition != minLength)
-            inputField.caretPosition = minLength;
+        //if (inputField.caretPosition != minLength)
+        //    inputField.caretPosition = minLength;
     }
 
     private void UpdateColors()

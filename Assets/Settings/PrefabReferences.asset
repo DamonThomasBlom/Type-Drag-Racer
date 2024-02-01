@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8225b15440baec14798dad6ae32335e0, type: 3}
+  m_Name: PrefabReferences
+  m_EditorClassIdentifier: 
+  buildings:
+  - {fileID: 8015657460583610489, guid: 5d8fe9df1aa7e0b4f88ffca9cbfd3603, type: 3}
+  - {fileID: 8923780493410695940, guid: 4273d913adb40d049918387523e3e2c8, type: 3}
+  - {fileID: 3717317803178181110, guid: e9b7ccf99f0b816459404c1837fbae48, type: 3}
+  - {fileID: 7169300545439912242, guid: 1c98d248326d1b6419f5090cb2605f76, type: 3}
+  - {fileID: 1650098440767932903, guid: 1e7d9f34b98704640b9dc81e0092f114, type: 3}
+  - {fileID: 2078160265633404774, guid: 93d5e2472860aba42ad4724503c3326c, type: 3}
+  - {fileID: 2035751500328334402, guid: 761e6bc86ea2ec04b86aad4b028940c1, type: 3}
+  - {fileID: 4067175077829378319, guid: 8ed8187a7a9e58a4999a48ed87b8d3c6, type: 3}
+  - {fileID: 5243098721365538439, guid: 70c92811cd1deb8438491e3a433cfa5f, type: 3}
+  - {fileID: 3359361785421604478, guid: 425b13836c06f1f4aa27d83948a8ee98, type: 3}
+  - {fileID: 1191435074563892767, guid: ae444d9b4561cf64ab26455c14eb4fd7, type: 3}
+  - {fileID: 4325983620550650110, guid: e04b6e2c23244724ba6a0208b8a5c21a, type: 3}
+  - {fileID: 460294510960280168, guid: 895bf2a8ccf470048a02a293b02a3d28, type: 3}
+  startRoadPrefab2: {fileID: 4345141853139598828, guid: fa9379e935a75ae46b2cf90d6bd9ba77,
+    type: 3}
+  startRoadPrefab4: {fileID: 290298704617396246, guid: 5849d76b4be174d4ba8cb016afc1fb0b,
+    type: 3}
+  startRoadPrefab6: {fileID: 3690417558550599556, guid: 396ccdbe448631045a858934f4781b55,
+    type: 3}
+  startRoadPrefab8: {fileID: 8889604619625077291, guid: 3d2d2b942eab8a246b3fa31e97d00389,
+    type: 3}
+  roadPrefab2: {fileID: 4860481291226655, guid: 07fa2519c72e16e42a4808268b96ee61,
+    type: 3}
+  roadPrefab4: {fileID: 1742997526825036258, guid: 83ec33dd69c55274fbd353da60068356,
+    type: 3}
+  roadPrefab6: {fileID: 2017463975716006270, guid: 851a43f4975145c4bb647809431a028d,
+    type: 3}
+  roadPrefab8: {fileID: 2578709902239643541, guid: e95084f4290d7cc47a1b246f96b41301,
+    type: 3}
+  finishLineRoadPrefab2: {fileID: 0}
+  finishLineRoadPrefab4: {fileID: 0}
+  finishLineRoadPrefab6: {fileID: 0}
+  finishLineRoadPrefab8: {fileID: 0}
