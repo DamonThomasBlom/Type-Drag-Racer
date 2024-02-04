@@ -1,10 +1,5 @@
 using Sirenix.OdinInspector;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Entities;
-using Unity.Mathematics;
-using UnityEditor.Build.Pipeline.Utilities;
 using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
@@ -14,13 +9,18 @@ public class WorldGenerator : MonoBehaviour
     public int playerCount = 2;
 
     [Header("Settings")]
+    [Tooltip("Max pooled roads")]
     public int maxRoadChunks = 10;
+    [Tooltip("Max pooled buildings")]
     public int maxBuildings = 20;
+    [Tooltip("Building spawn distance from player")]
     public float buildingSpawnDistance = 100;
-    public float validBuildingDistance = 10;
-    public float chunkMeasurementSize = 5;
-    public float activateInterval = 5;
-    public float startPoolingDistance = 20;
+    [Tooltip("Building despawn distance")]
+    public float buldingDespawnDistance = 10;
+    [Tooltip("Road offset distance")]
+    public float roadMeasurementSize = 5;
+    [Tooltip("When should we start pooling")]
+    public float startPoolingRoadDistance = 20;
 
     [Space(10f)]
     public Transform player;
@@ -33,25 +33,48 @@ public class WorldGenerator : MonoBehaviour
     [ShowInInspector]
     private List<KeyValuePair<GameObject, float>> buidlingSizes = new List<KeyValuePair<GameObject, float>>();
 
-    private GameObject startRoad;
     private float previousChunkPosition;
     private float previousBuildingPosition;
 
     private void Start()
     {
+        Init();
+    }
+
+    private void Init()
+    {
+        if (player == null)
+        {
+            GameObject playerGo = GameObject.FindGameObjectWithTag("Player");
+
+            if (playerGo == null)
+            {
+                Invoke(nameof(Init), 1);
+                return;
+            }
+            player = playerGo.transform;
+        }
+
         SetupRoadChunks();
         SetupBuilding();
     }
 
+    private void Update()
+    {
+        if (player == null) { return; }
+        CheckChunks();
+        CheckBuildings();
+    }
+
     private void SetupBuilding()
     {
-        previousBuildingPosition = 0;
+        // Start buildings from behind the player
+        previousBuildingPosition = -100;
 
         for (int i = 0; i < maxBuildings; i++)
         {
             int randomIndex = UnityEngine.Random.Range(0, prefabReferences.buildings.Count);
             GameObject building = prefabReferences.buildings[randomIndex];
-            MeshRenderer meshRenderer = building.GetComponentInChildren<MeshRenderer>();
 
             // Get all the Mesh Renderers attached to the object
             MeshRenderer[] meshRenderers = building.GetComponentsInChildren<MeshRenderer>();
@@ -80,11 +103,8 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        CheckChunks();
-        CheckBuildings();
-    }
+
+    int buildingLeftOffset = 7;
 
     private void CheckBuildings()
     {
@@ -93,7 +113,7 @@ public class WorldGenerator : MonoBehaviour
         {
             KeyValuePair<GameObject, float> building = GetRandomBuilding();
             float newBuildingPosition = previousBuildingPosition + building.Value;
-            building.Key.transform.position = OffsetOneValueBuilding(10, newBuildingPosition);
+            building.Key.transform.position = OffsetOneValueBuilding(buildingLeftOffset, newBuildingPosition);
             previousBuildingPosition = newBuildingPosition;
         }
     }
@@ -107,11 +127,13 @@ public class WorldGenerator : MonoBehaviour
         }
 
         previousChunkPosition = 0;
-        startRoad = Instantiate(prefabReferences.GetStartRoadPrefab(playerCount), OffsetZValue(previousChunkPosition), Quaternion.identity);
+
+        // Spawn the start road
+        Instantiate(prefabReferences.GetStartRoadPrefab(playerCount), OffsetZValue(previousChunkPosition), Quaternion.identity);
 
         for (int i = 0; i < maxRoadChunks; i++)
         {
-            previousChunkPosition += chunkMeasurementSize;
+            previousChunkPosition += roadMeasurementSize;
             GameObject roadChunk = Instantiate(prefabReferences.GetRoadPrefab(playerCount), OffsetZValue(previousChunkPosition), Quaternion.identity);
             roadChunk.transform.parent = this.transform;
             roadChunks.Add(roadChunk);
@@ -120,9 +142,9 @@ public class WorldGenerator : MonoBehaviour
 
     private void CheckChunks()
     {
-        if (player.position.z > previousChunkPosition + chunkMeasurementSize + startPoolingDistance)
+        if (player.position.z > previousChunkPosition + roadMeasurementSize + startPoolingRoadDistance)
         {
-            previousChunkPosition += chunkMeasurementSize;
+            previousChunkPosition += roadMeasurementSize;
             roadChunks[GetNextIndex()].transform.position = OffsetZValue(previousChunkPosition);
         }
     }
@@ -150,7 +172,7 @@ public class WorldGenerator : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, buidlingSizes.Count - 1);
 
         // The building is not in valid range of player
-        if ((buidlingSizes[randomIndex].Key.transform.position.z + validBuildingDistance) > player.position.z)
+        if ((buidlingSizes[randomIndex].Key.transform.position.z + buldingDespawnDistance) > player.position.z)
             return GetRandomBuilding();
 
         return buidlingSizes[randomIndex];

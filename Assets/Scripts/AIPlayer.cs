@@ -1,3 +1,4 @@
+using Fusion;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public class AIPlayer : MonoBehaviour
+public class AIPlayer : NetworkBehaviour
 {
     public enum DifficultyLevel
     {
@@ -31,12 +32,26 @@ public class AIPlayer : MonoBehaviour
     private List<string> correctTargetSentence = new List<string>();
     public float currentSpeed = 0;
 
-    private void Start()
-    {
-        // Set the initial typing interval based on the selected difficulty level
-        SetTypingInterval();
+    //private void Start()
+    //{
+    //    // Set the initial typing interval based on the selected difficulty level
+    //    SetTypingInterval();
 
-        correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
+    //    correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
+    //    StartCoroutine(updateSpeedText());
+    //}
+
+    public override void Spawned()
+    {
+        base.Spawned();
+
+        if (Object.HasStateAuthority)
+        {
+            SetTypingInterval();
+
+            correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
+        }
+
         StartCoroutine(updateSpeedText());
     }
 
@@ -59,13 +74,41 @@ public class AIPlayer : MonoBehaviour
 
         // Update the typing timer
         typingTimer += Time.deltaTime;
+
+        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.deltaTime);
     }
 
-    private void FixedUpdate()
+    public override void FixedUpdateNetwork()
     {
-        // Move the player forward based on the current speed
-        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.fixedDeltaTime);
+        base.FixedUpdateNetwork();
+        if (!TypingManager.Instance.gameStarted) { return; }
+        if (!HasStateAuthority) { return; } 
+
+
+        // Check if the typing manager is assigned and the AI is ready to type
+        if (typingTimer >= typingInterval && correctTargetSentence.Count > 0)
+        {
+            // Simulate the AI typing the word
+            string nextWord = correctTargetSentence[0];
+            AIInput += nextWord + " ";
+            correctTargetSentence.Remove(nextWord);
+
+            // Reset the typing timer
+            typingTimer = 0f;
+            StartCoroutine(lerpSpeed());
+        }
+
+        // Update the typing timer
+        typingTimer += Runner.DeltaTime;
+
+        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Runner.DeltaTime);
     }
+
+    //private void FixedUpdate()
+    //{
+    //    // Move the player forward based on the current speed
+    //    transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.fixedDeltaTime);
+    //}
 
     IEnumerator lerpSpeed()
     {
@@ -76,7 +119,7 @@ public class AIPlayer : MonoBehaviour
 
         while (elapsedTime < typingInterval)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Runner.DeltaTime;
             currentSpeed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / typingInterval);
             yield return null;
         }

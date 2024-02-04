@@ -14,7 +14,10 @@ public class TypingManager : MonoBehaviour
 {
     //[ShowInInspector]
     private List<string> generatedWords = new List<string>();
+    [HideInInspector]
     public string targetString;
+    //[HideInInspector]
+    [TextArea]
     public string userInput;
     public TextMeshProUGUI text;
     //public TMP_InputField inputField;
@@ -24,8 +27,10 @@ public class TypingManager : MonoBehaviour
     //[ShowInInspector]
     public GameStatistics GameStats;
 
+    [HideInInspector]
     public GameStatisticsCalculator calculator;
 
+    public int targetWordCount = 50;
     public float fastestWPM = 500;
     public float fastestCarSpeed = 300; // kph
 
@@ -62,7 +67,7 @@ public class TypingManager : MonoBehaviour
     {
         Instance = this;
         calculator = GetComponent<GameStatisticsCalculator>();
-        generatedWords = WordsManager.Instance.getRandomWords(100);
+        generatedWords = WordsManager.Instance.getRandomWords(targetWordCount);
 
         targetString = string.Join(" ", generatedWords.ToArray());
 
@@ -89,6 +94,12 @@ public class TypingManager : MonoBehaviour
             }
             else
                 GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameTimeInSeconds);
+        }
+
+        if (cursorBlinkTimer == 0)
+        {
+            cursorVisible = true;
+            return;
         }
 
         // Update the cursor blink
@@ -157,12 +168,18 @@ public class TypingManager : MonoBehaviour
         //inputField.ActivateInputField();
     }
 
+    float timeSinceBackspace;
+    float elapsedTime;
+
     void checkInput()
     {
+        if (!gameStarted) { return; }
+
         if (Input.anyKeyDown)
         {
             gameStarted = true;
             if (Input.GetKeyDown(KeyCode.Backspace))
+            //if (Input.GetKey(KeyCode.Backspace))
             {
                 if (userInput.Length > 0)
                 {
@@ -175,6 +192,7 @@ public class TypingManager : MonoBehaviour
 
             if (Input.inputString.Length == 1) 
             {
+                //Debug.Log("User input: " + (string.IsNullOrWhiteSpace(Input.inputString) ? "White space" : Input.inputString));
                 userInput += Input.inputString;
                 //compareInput();
             }
@@ -215,7 +233,7 @@ public class TypingManager : MonoBehaviour
             {
                 if (isCorrectSequence)
                     coloredTextBuilder.Append(userInput[i]);
-                else 
+                else
                 {
                     if (isIncorrectSequence)
                         // Close off incorrect colour
