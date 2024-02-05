@@ -4,11 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
-public class AIPlayer : NetworkBehaviour
+public class AIPlayer : NetworkBehaviour, ICarSpeed
 {
     public enum DifficultyLevel
     {
@@ -30,7 +28,7 @@ public class AIPlayer : NetworkBehaviour
     private float typingInterval;
     private string AIInput = string.Empty;
     private List<string> correctTargetSentence = new List<string>();
-    public float currentSpeed = 0;
+    public float speed { get; set; }
 
     //private void Start()
     //{
@@ -75,7 +73,7 @@ public class AIPlayer : NetworkBehaviour
         // Update the typing timer
         typingTimer += Time.deltaTime;
 
-        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.deltaTime);
+        transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Time.deltaTime);
     }
 
     public override void FixedUpdateNetwork()
@@ -101,7 +99,7 @@ public class AIPlayer : NetworkBehaviour
         // Update the typing timer
         typingTimer += Runner.DeltaTime;
 
-        transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Runner.DeltaTime);
+        transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Runner.DeltaTime);
     }
 
     //private void FixedUpdate()
@@ -113,14 +111,14 @@ public class AIPlayer : NetworkBehaviour
     IEnumerator lerpSpeed()
     {
         float elapsedTime = 0;
-        float startSpeed = currentSpeed;
+        float startSpeed = speed;
         Stats = TypingManager.Instance.calculator.CalculateAIGameStatistics(AIInput, TypingManager.Instance.targetString, TypingManager.Instance.getGameTime());
         float targetSpeed = Stats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
 
         while (elapsedTime < typingInterval)
         {
             elapsedTime += Runner.DeltaTime;
-            currentSpeed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / typingInterval);
+            speed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / typingInterval);
             yield return null;
         }
     }
@@ -130,7 +128,7 @@ public class AIPlayer : NetworkBehaviour
         while (true)
         {
             yield return new WaitForSeconds(1f);
-            speedText.text = "km/h: " + currentSpeed.ToString("F0");
+            speedText.text = "km/h: " + speed.ToString("F0");
         }
     }
 

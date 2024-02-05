@@ -1,29 +1,39 @@
 using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class RemotePlayer : NetworkBehaviour
+public class RemotePlayer : NetworkBehaviour, ICarSpeed
 {
     public GameStatistics stats;
-    public float currentSpeed;
+    public float speed { get; set; }
+
+    [Networked, OnChangedRender(nameof(SpawnCar))]
+    public string carPrefabName { get; set; }
 
     public bool isLocalPlayer => Object && Object.HasStateAuthority;
 
-    public GameObject GFX;
+    public Transform carSpawnPoint;
 
     private Transform localPlayerTransform;
     private PlayerController localPlayerController;
+    private GameObject carInstance;
 
     public override void Spawned()
     {
         base.Spawned();
         if (isLocalPlayer)
         {
-            localPlayerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+            carPrefabName = Player.Instance.carName;
+            localPlayerTransform = Player.Instance.playerTransform;
             localPlayerController = localPlayerTransform.GetComponent<PlayerController>();
-            GFX.SetActive(false);
+            carSpawnPoint.gameObject.SetActive(false);
+        }
+        else
+        {
+            SpawnCar();
         }
     }
 
@@ -50,10 +60,19 @@ public class RemotePlayer : NetworkBehaviour
     //    }
     //}
 
+    private void SpawnCar()
+    {
+        if (string.IsNullOrEmpty(carPrefabName)) { return; }
+        if (carInstance != null) { return; }
+
+        var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(carPrefabName);
+        carInstance = Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
+    }
+
     protected virtual void ApplyLocalData()
     {
         transform.position = localPlayerTransform.position;
         stats = localPlayerController.gameStatistics;
-        currentSpeed = localPlayerController.currentSpeed;
+        speed = localPlayerController.speed;
     }
 }

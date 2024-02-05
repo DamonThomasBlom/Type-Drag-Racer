@@ -27,6 +27,7 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
     public GameObject remotePlayerPrefab;
 
     private NetworkPlayerSpawnPoint networkPlayerSpawnPoint;
+    private Vector3 randomSpawnPoint;
 
     private void Awake()
     {
@@ -39,8 +40,8 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
         Debug.Log("Tick rate: " + Runner.TickRate);
         if (player == Runner.LocalPlayer)
         {
-            Vector3 spawnPoint = SerializedSpawnPoints.Instance.GetRandomPlayerSpawnPoint().position;
-            SpawnLocalPlayer(spawnPoint);
+            SpawnLocalPlayer();
+            Invoke(nameof(SpawnRemotePlayer), 0.5f);
 
             if (Runner.IsSharedModeMasterClient)
             {
@@ -73,10 +74,16 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
         //}
     }
 
-    public void SpawnLocalPlayer(Vector3 spawnPoint)
+    public void SpawnLocalPlayer()
     {
-        Instantiate(localPlayerPrefab, spawnPoint, Quaternion.identity);
-        Transform localPlayerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        // Spawn local player
+        randomSpawnPoint = SerializedSpawnPoints.Instance.GetRandomPlayerSpawnPoint().position;
+        Instantiate(localPlayerPrefab, randomSpawnPoint, Quaternion.identity);
+    }
+
+    public void SpawnRemotePlayer()
+    {
+        Transform localPlayerTransform = Player.Instance.playerTransform;
 
         var runner = NetworkRunner.GetRunnerForGameObject(gameObject);
         networkPlayerSpawnPoint = runner.Spawn(remotePlayerPrefab, localPlayerTransform.position, Quaternion.identity).GetComponent<NetworkPlayerSpawnPoint>();
@@ -84,8 +91,11 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
 
     public void AssignSpawnPoint(Vector3 spawnPoint)
     {
-        Transform localPlayerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        Transform localPlayerTransform = Player.Instance.playerTransform;
         localPlayerTransform.position = spawnPoint;
+
+        // Reset the players start position
+        FindObjectOfType<PlayerController>().ResetStartPosition();
     }
 
     [Button]

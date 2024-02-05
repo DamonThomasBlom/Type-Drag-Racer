@@ -7,18 +7,14 @@ public class CarWheelRotation : MonoBehaviour
     public Transform[] wheels;
     public float rotationSpeedMultiplier = 40f;
 
-    private PlayerController playerController;
-    private RemotePlayer remotePlayer;
-    private AIPlayer botPlayer;
+    private ICarSpeed carSpeed;
 
     [SerializeField]
     float currentSpeed;
 
     private void Start()
     {
-        playerController = GetComponentInParent<PlayerController>();
-        remotePlayer = GetComponentInParent<RemotePlayer>();
-        botPlayer = GetComponentInParent<AIPlayer>();
+        carSpeed = GetComponentInParent<ICarSpeed>();
     }
 
     private void Update()
@@ -33,13 +29,7 @@ public class CarWheelRotation : MonoBehaviour
 
     void GetCurrentSpeed()
     {
-        if (playerController)
-            currentSpeed = playerController.currentSpeed;
-
-        if (remotePlayer)
-            currentSpeed = remotePlayer.currentSpeed;
-
-        if (botPlayer)
-            currentSpeed = botPlayer.currentSpeed;
+        if (carSpeed != null)
+            currentSpeed = carSpeed.speed;
     }
 }

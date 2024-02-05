@@ -45,14 +45,12 @@ public class WorldGenerator : MonoBehaviour
     {
         if (player == null)
         {
-            GameObject playerGo = GameObject.FindGameObjectWithTag("Player");
-
-            if (playerGo == null)
+            if (Player.Instance.playerTransform == null)
             {
                 Invoke(nameof(Init), 1);
                 return;
             }
-            player = playerGo.transform;
+            player = Player.Instance.playerTransform;
         }
 
         SetupRoadChunks();
