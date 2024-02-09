@@ -168,9 +168,6 @@ public class TypingManager : MonoBehaviour
         //inputField.ActivateInputField();
     }
 
-    float timeSinceBackspace;
-    float elapsedTime;
-
     void checkInput()
     {
         if (!gameStarted) { return; }

@@ -11,10 +11,6 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
 {
     public static SpawnpointManager Instance;
 
-    // KEY: Position   VALUE: Occupied
-    [ShowInInspector]
-    //private Dictionary<Transform, bool> SpawnPoints = new Dictionary<Transform, bool>();
-
     public GameObject BotVeryEasyPrefab;
     public GameObject BotEasyPrefab;
     public GameObject BotMediumPrefab;
