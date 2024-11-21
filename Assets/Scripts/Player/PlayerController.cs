@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour, ICarSpeed
 {
     public float distanceTraveled;
     public GameStatistics gameStatistics { get; set; }
+    [ShowInInspector]
     public float speed { get; set; }
 
     public Transform carSpawnPoint;
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour, ICarSpeed
 
     private void Update()
     {
+        if (TypingManager.Instance == null) { return; }
+
         gameStatistics = TypingManager.Instance.GameStats;
         speed = TypingManager.Instance.GameStats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
 

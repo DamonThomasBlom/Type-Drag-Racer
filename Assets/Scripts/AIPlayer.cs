@@ -20,6 +20,7 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
 
     public DifficultyLevel difficultyLevel; // Enum to represent the difficulty level
     public TextMeshProUGUI speedText;
+    public TextMeshProUGUI nameText;
 
     [ShowInInspector]
     public GameStatistics Stats;
@@ -51,6 +52,7 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         }
 
         StartCoroutine(updateSpeedText());
+        UpdateNameText();
     }
 
     private void Update()
@@ -160,5 +162,32 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         // Add a random factor to the typing interval
         float randomFactor = Random.Range(GameManager.Instance.minRandomFactor, GameManager.Instance.maxRandomFactor);
         typingInterval += randomFactor;
+    }
+
+    private void UpdateNameText()
+    {
+        if (nameText == null) { return; }
+
+        switch (difficultyLevel)
+        {
+            case DifficultyLevel.VeryEasy:
+                nameText.text = "AI Very Easy";
+                break;
+            case DifficultyLevel.Easy:
+                nameText.text = "AI Easy";
+                break;
+            case DifficultyLevel.Medium:
+                nameText.text = "AI Medium";
+                break;
+            case DifficultyLevel.Hard:
+                nameText.text = "AI Hard";
+                break;
+            case DifficultyLevel.VeryHard:
+                nameText.text = "AI Very Hard";
+                break;
+            case DifficultyLevel.Expert:
+                nameText.text = "AI Expert";
+                break;
+        }
     }
 }

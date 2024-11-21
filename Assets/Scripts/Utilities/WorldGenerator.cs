@@ -9,6 +9,7 @@ public class WorldGenerator : MonoBehaviour
     public int playerCount = 2;
 
     [Header("Settings")]
+    public bool disableBuildings;
     [Tooltip("Max pooled roads")]
     public int maxRoadChunks = 10;
     [Tooltip("Max pooled buildings")]
@@ -66,6 +67,8 @@ public class WorldGenerator : MonoBehaviour
 
     private void SetupBuilding()
     {
+        if (disableBuildings) { return; }
+
         // Start buildings from behind the player
         previousBuildingPosition = -100;
 
@@ -106,6 +109,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void CheckBuildings()
     {
+        if (disableBuildings) { return; }
         if (buidlingSizes.Count == 0) { return; }
         if (previousBuildingPosition < player.position.z + buildingSpawnDistance)
         {

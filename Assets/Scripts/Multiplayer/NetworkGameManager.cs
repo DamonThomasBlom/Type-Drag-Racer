@@ -46,6 +46,25 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     //    }
     //}
 
+    //private void Update()
+    //{
+    //    if (!IsMaster)
+    //    {
+    //        TypingManager.Instance.targetString = TargetString;
+    //    }
+    //}
+
+    public override void Spawned()
+    {
+        base.Spawned();
+
+        Debug.Log("Game manager spawned");
+        if (!IsMaster)
+        {
+            TypingManager.Instance.targetString = TargetString;
+        }
+    }
+
     private void OnGameStateChanged()
     {
         _State = State;
@@ -65,12 +84,20 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
 
     private void OnTargetStringChanged()
     {
+        Debug.Log("Should be setting string: " + TargetString);
         TypingManager.Instance.targetString = TargetString;
     }
 
     private void OnCountDownValueChanged()
     {
         Debug.Log("Countdown value changed: " + CountDownValue);
+        if (IsMaster && CountDownValue == 5)
+        {
+            // Generate bots to full any empty spaces and disable other players joining last second
+            SpawnpointManager.Instance.GenerateBots();
+            Runner.SessionInfo.IsOpen = false;
+        }
+
         if (IsMaster && CountDownValue <= 0)
             SetState(GameState.Started);
 
@@ -78,6 +105,11 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
         {
             CountdownUI.Instance.CountDownValue(CountDownValue);
         }
+    }
+
+    public void SetTargetString()
+    {
+        TargetString = TypingManager.Instance.targetString;
     }
 
     public void SetState(GameState newState)
@@ -90,12 +122,12 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     {
         if (IsMaster)
         {
-            TargetString = TypingManager.Instance.targetString;
+            Invoke(nameof(SetTargetString), 2);
 
             // Only start the countdown if we are the player
             if (player == Runner.LocalPlayer)
             {
-                CountDownValue = 30;
+                CountDownValue = 15;
                 StartCoroutine(CountDownCoroutine());
             }
         }

@@ -20,6 +20,7 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     private Transform localPlayerTransform;
     private PlayerController localPlayerController;
     private GameObject carInstance;
+    private AudioSource carAudio;
 
     public override void Spawned()
     {
@@ -30,6 +31,9 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
             localPlayerTransform = Player.Instance.playerTransform;
             localPlayerController = localPlayerTransform.GetComponent<PlayerController>();
             carSpawnPoint.gameObject.SetActive(false);
+            carAudio = GetComponent<AudioSource>();
+
+            carAudio.enabled = false;
         }
         else
         {

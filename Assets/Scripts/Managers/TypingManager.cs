@@ -121,13 +121,29 @@ public class TypingManager : MonoBehaviour
 
     int currentWordIndex = 0;
 
+    //[Button]
+    //public void nextWord()
+    //{
+    //    if (currentWordIndex < generatedWords.Count)
+    //    {
+    //        userInput += generatedWords[currentWordIndex] + " ";
+    //        currentWordIndex++;
+    //    }
+    //}
+
     [Button]
     public void nextWord()
     {
-        if (currentWordIndex < generatedWords.Count)
+        int userInputLength = userInput.Length;
+        int targetStringLength = targetString.Length;
+
+        if ((userInputLength + 5) <= targetStringLength)
         {
-            userInput += generatedWords[currentWordIndex] + " ";
-            currentWordIndex++;
+            userInput = targetString.Substring(0, userInputLength + 5);
+        }
+        else
+        {
+            userInput = targetString;
         }
     }
 
@@ -175,6 +191,14 @@ public class TypingManager : MonoBehaviour
         if (Input.anyKeyDown)
         {
             gameStarted = true;
+
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                Debug.Log("Enter key pressed!");
+                // Handle Enter key logic here
+                return;
+            }
+
             if (Input.GetKeyDown(KeyCode.Backspace))
             //if (Input.GetKey(KeyCode.Backspace))
             {
@@ -220,6 +244,9 @@ public class TypingManager : MonoBehaviour
         //    }
         //}
 
+        // Apply monospace
+        //coloredTextBuilder.Append("<mspace=0.75em>");
+
         bool isCorrectSequence = false;
         bool isIncorrectSequence = false;
 
@@ -263,7 +290,9 @@ public class TypingManager : MonoBehaviour
         // Close off any colours
         coloredTextBuilder.Append($"</color>");
 
+        //coloredTextBuilder.Append("</mspace>");
         coloredTextBuilder.Append(GetCursorCharacter());
+        //coloredTextBuilder.Append("<mspace=0.75em>");
 
         // Append the remaining characters from the longer string in gray color
         if (targetString.Length > userInput.Length)
