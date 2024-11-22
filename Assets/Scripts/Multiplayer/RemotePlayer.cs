@@ -2,6 +2,7 @@ using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,9 +14,14 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     [Networked, OnChangedRender(nameof(SpawnCar))]
     public string carPrefabName { get; set; }
 
+    [Networked, OnChangedRender(nameof(SetPlayerName))]
+    public string playerName { get; set; }
+
     public bool isLocalPlayer => Object && Object.HasStateAuthority;
 
     public Transform carSpawnPoint;
+
+    public TextMeshProUGUI nameText;
 
     private Transform localPlayerTransform;
     private PlayerController localPlayerController;
@@ -27,6 +33,7 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
         base.Spawned();
         if (isLocalPlayer)
         {
+            playerName = Player.Instance.username;
             carPrefabName = Player.Instance.carName;
             localPlayerTransform = Player.Instance.playerTransform;
             localPlayerController = localPlayerTransform.GetComponent<PlayerController>();
@@ -34,10 +41,13 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
             carAudio = GetComponent<AudioSource>();
 
             carAudio.enabled = false;
+            if (nameText != null)
+                nameText.transform.parent.gameObject.SetActive(false);
         }
         else
         {
             SpawnCar();
+            SetPlayerName();
         }
     }
 
@@ -51,19 +61,6 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
         }
     }
 
-    //public override void Render()
-    //{
-    //    base.Render();
-    //    if (isLocalPlayer)
-    //    {
-    //        // Extrapolate for local user :
-    //        // we want to have the visual at the good position as soon as possible, so we force the visuals to follow the most fresh hardware positions
-    //        transform.position = localPlayerTransform.position;
-    //        stats = localPlayerController.gameStatistics;
-    //        currentSpeed = localPlayerController.currentSpeed;
-    //    }
-    //}
-
     private void SpawnCar()
     {
         if (string.IsNullOrEmpty(carPrefabName)) { return; }
@@ -73,10 +70,23 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
         carInstance = Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
     }
 
+    private void SetPlayerName()
+    {
+        if (nameText != null)
+            nameText.text = playerName;
+    }
+
     protected virtual void ApplyLocalData()
     {
         transform.position = localPlayerTransform.position;
         stats = localPlayerController.gameStatistics;
         speed = localPlayerController.speed;
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void FinishedRaceRpc(float time, string name)
+    {
+        Debug.Log(name + " finished race at " + time);
+        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name });
     }
 }

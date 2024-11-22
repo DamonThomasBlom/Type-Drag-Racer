@@ -16,7 +16,8 @@ public class PlayerController : MonoBehaviour, ICarSpeed
 
     public Transform carSpawnPoint;
 
-    private Vector3 startPosition; 
+    private Vector3 startPosition;
+    private bool _raceFinished = false;
 
     public void Start()
     {
@@ -32,6 +33,13 @@ public class PlayerController : MonoBehaviour, ICarSpeed
         speed = TypingManager.Instance.GameStats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
 
         distanceTraveled = Vector3.Distance(startPosition, transform.position);
+
+        if (distanceTraveled >= GameManager.Instance.RaceDistance && !_raceFinished)
+        {
+            Debug.Log("Race finsihed");
+            _raceFinished = true;
+            Player.Instance.localPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.username);
+        }
 
         GameUIManager.Instance.speedTxt.text = "km/h: " + speed.ToString("F0");
         GameUIManager.Instance.distanceTraveledTxt.text = "Distance Traveled: " + distanceTraveled.ToString("F0") + "m";

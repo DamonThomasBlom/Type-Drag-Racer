@@ -25,51 +25,74 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
     [ShowInInspector]
     public GameStatistics Stats;
 
+    [Networked]
+    public float TypingInterval { get; set; }
+
     private float typingTimer = 10f;
-    private float typingInterval;
+
+    [SerializeField]
     private string AIInput = string.Empty;
     private List<string> correctTargetSentence = new List<string>();
     public float speed { get; set; }
+    public float distanceTraveled;
 
-    //private void Start()
-    //{
-    //    // Set the initial typing interval based on the selected difficulty level
-    //    SetTypingInterval();
-
-    //    correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
-    //    StartCoroutine(updateSpeedText());
-    //}
+    private Vector3 _startPosition;
+    private bool _raceFinished;
 
     public override void Spawned()
     {
         base.Spawned();
 
+        _startPosition = transform.position;
+
+        // To handle the state authority leaving
+        NetworkEvents networkEvents = FindObjectOfType<NetworkEvents>();
+        networkEvents.PlayerLeft.AddListener(OnPlayerLeft);
+
         if (Object.HasStateAuthority)
         {
             SetTypingInterval();
-
-            correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
         }
 
+        correctTargetSentence = TypingManager.Instance.targetString.Split(" ").ToList();
         StartCoroutine(updateSpeedText());
         UpdateNameText();
     }
 
+    private void OnPlayerLeft(NetworkRunner runner, PlayerRef playerLeft)
+    {
+        // When the owner leaves and we become the master client we should start controller the AI
+        if (playerLeft == Object.StateAuthority && NetworkRunnerInstance.Instance.Runner.IsSharedModeMasterClient)
+            Object.RequestStateAuthority();
+    }
+
     private void Update()
     {
+        AssignOwner();
+        if (!Object.HasStateAuthority) { return; }
         if (!TypingManager.Instance.gameStarted) { return; }
 
         // Check if the typing manager is assigned and the AI is ready to type
-        if (typingTimer >= typingInterval && correctTargetSentence.Count > 0)
+        if (typingTimer >= TypingInterval && correctTargetSentence.Count > 0)
         {
             // Simulate the AI typing the word
             string nextWord = correctTargetSentence[0];
             AIInput += nextWord + " ";
             correctTargetSentence.Remove(nextWord);
 
+            UpdateAIWordsRpc(AIInput);
+
             // Reset the typing timer
             typingTimer = 0f;
             StartCoroutine(lerpSpeed());
+        }
+
+        // Check if the AI has finished the race
+        distanceTraveled = Vector3.Distance(_startPosition, transform.position);
+        if (distanceTraveled >= GameManager.Instance.RaceDistance && !_raceFinished)
+        {
+            _raceFinished = true;
+            AiFinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, nameText.text);
         }
 
         // Update the typing timer
@@ -78,38 +101,6 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Time.deltaTime);
     }
 
-    public override void FixedUpdateNetwork()
-    {
-        base.FixedUpdateNetwork();
-        if (!TypingManager.Instance.gameStarted) { return; }
-        if (!HasStateAuthority) { return; } 
-
-
-        // Check if the typing manager is assigned and the AI is ready to type
-        if (typingTimer >= typingInterval && correctTargetSentence.Count > 0)
-        {
-            // Simulate the AI typing the word
-            string nextWord = correctTargetSentence[0];
-            AIInput += nextWord + " ";
-            correctTargetSentence.Remove(nextWord);
-
-            // Reset the typing timer
-            typingTimer = 0f;
-            StartCoroutine(lerpSpeed());
-        }
-
-        // Update the typing timer
-        typingTimer += Runner.DeltaTime;
-
-        transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Runner.DeltaTime);
-    }
-
-    //private void FixedUpdate()
-    //{
-    //    // Move the player forward based on the current speed
-    //    transform.Translate(Vector3.forward * currentSpeed * GameManager.Instance.conversionFactor * Time.fixedDeltaTime);
-    //}
-
     IEnumerator lerpSpeed()
     {
         float elapsedTime = 0;
@@ -117,10 +108,10 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         Stats = TypingManager.Instance.calculator.CalculateAIGameStatistics(AIInput, TypingManager.Instance.targetString, TypingManager.Instance.getGameTime());
         float targetSpeed = Stats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
 
-        while (elapsedTime < typingInterval)
+        while (elapsedTime < TypingInterval)
         {
             elapsedTime += Runner.DeltaTime;
-            speed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / typingInterval);
+            speed = Mathf.Lerp(startSpeed, targetSpeed, elapsedTime / TypingInterval);
             yield return null;
         }
     }
@@ -140,28 +131,28 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         switch (difficultyLevel)
         {
             case DifficultyLevel.VeryEasy:
-                typingInterval = GameManager.Instance.veryEasyTypingInterval;
+                TypingInterval = GameManager.Instance.veryEasyTypingInterval;
                 break;
             case DifficultyLevel.Easy:
-                typingInterval = GameManager.Instance.easyTypingInterval;
+                TypingInterval = GameManager.Instance.easyTypingInterval;
                 break;
             case DifficultyLevel.Medium:
-                typingInterval = GameManager.Instance.mediumTypingInterval;
+                TypingInterval = GameManager.Instance.mediumTypingInterval;
                 break;
             case DifficultyLevel.Hard:
-                typingInterval = GameManager.Instance.hardTypingInterval;
+                TypingInterval = GameManager.Instance.hardTypingInterval;
                 break;
             case DifficultyLevel.VeryHard:
-                typingInterval = GameManager.Instance.veryHardTypingInterval;
+                TypingInterval = GameManager.Instance.veryHardTypingInterval;
                 break;
             case DifficultyLevel.Expert:
-                typingInterval = GameManager.Instance.expertTypingInterval;
+                TypingInterval = GameManager.Instance.expertTypingInterval;
                 break;
         }
 
         // Add a random factor to the typing interval
         float randomFactor = Random.Range(GameManager.Instance.minRandomFactor, GameManager.Instance.maxRandomFactor);
-        typingInterval += randomFactor;
+        TypingInterval += randomFactor;
     }
 
     private void UpdateNameText()
@@ -189,5 +180,42 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
                 nameText.text = "AI Expert";
                 break;
         }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void UpdateAIWordsRpc(string words)
+    {
+        // Don't update if we own this
+        if (Object.HasStateAuthority) { return; }
+
+        AIInput = words;
+    }
+
+    void AssignOwner()
+    {
+        if (NetworkRunner.GetRunnerForGameObject(gameObject) == null)
+            Debug.Log("Runner is null");
+
+        string debugString = string.Empty;
+
+        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsConnectedToServer)
+            debugString += "Connected to server";
+        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsSharedModeMasterClient)
+            debugString += "\nIs shared mode master";
+        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsSceneAuthority)
+            debugString += "\nIs Scene authority";
+        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsShutdown)
+            debugString += "\nIs Shut down";
+
+        //if (Object.StateAuthority. != NetworkRunner.GetRunnerForGameObject(gameObject).)
+
+        Debug.Log(debugString);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void AiFinishedRaceRpc(float time, string name)
+    {
+        Debug.Log(name + " finished race at " + time);
+        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name });
     }
 }

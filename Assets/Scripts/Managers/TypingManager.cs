@@ -73,8 +73,6 @@ public class TypingManager : MonoBehaviour
 
         UpdateColors();
         StartCoroutine(updateTextCoroutine());
-        //inputField.caretColor = cursorColor;
-        SelectInputField();
     }
 
     #endregion
@@ -175,13 +173,6 @@ public class TypingManager : MonoBehaviour
             compareInput();
             yield return null;
         }
-    }
-
-    private void SelectInputField()
-    {
-        // Set the input field as the currently selected object
-        //inputField.Select();
-        //inputField.ActivateInputField();
     }
 
     void checkInput()

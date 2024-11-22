@@ -1,6 +1,7 @@
 using Fusion;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public enum GameState
@@ -12,6 +13,13 @@ public enum GameState
 
 public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
 {
+    public static NetworkGameManager Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     [Networked, OnChangedRender(nameof(OnGameStateChanged))]
     public GameState State { get; set; }
 
@@ -19,50 +27,56 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     public string TargetString { get; set; }
 
     [Networked, OnChangedRender(nameof(OnCountDownValueChanged))]
-    public int CountDownValue { get; set; } 
+    public int CountDownValue { get; set; }
+
+    [Networked, OnChangedRender(nameof(OnRaceDistanceChanged))] 
+    public float RaceDistance { get; set; }
 
     private static GameState _State;
 
     public bool IsMaster => Runner == Runner.IsSharedModeMasterClient;
 
-    float elapsedNetworkTime;
+    public TextMeshProUGUI CurrentStatusText;
 
-    //public override void FixedUpdateNetwork()
-    //{
-    //    base.FixedUpdateNetwork();
+    [Networked]
+    public float ElapsedNetworkTime {  get; set; }
 
-    //    if (IsMaster)
-    //    {
-    //        elapsedNetworkTime += Runner.DeltaTime;
-    //        if (elapsedNetworkTime >= 1) 
-    //        {
-    //            elapsedNetworkTime = 0;
-
-    //            // Stop changing the value if we've already started
-    //            if (CountDownValue <= 0)
-    //                return;
-    //            CountDownValue--;
-    //        }
-    //    }
-    //}
-
-    //private void Update()
-    //{
-    //    if (!IsMaster)
-    //    {
-    //        TypingManager.Instance.targetString = TargetString;
-    //    }
-    //}
+    [Networked]
+    public float RaceStartTimeNetwork { get; set; }
 
     public override void Spawned()
     {
         base.Spawned();
+        joined = true;
 
-        Debug.Log("Game manager spawned");
+        if (CurrentStatusText != null)
+            CurrentStatusText.text = "Waiting for players...";
+
+        OnRaceDistanceChanged();
+
         if (!IsMaster)
         {
             TypingManager.Instance.targetString = TargetString;
         }
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        base.FixedUpdateNetwork();
+
+        ElapsedNetworkTime += Runner.DeltaTime;
+    }
+
+    private void Update()
+    {
+        if (joined && IsMaster && !countDownStarted)
+            StartCoroutine(CountDownCoroutine());
+    }
+
+    private void OnRaceDistanceChanged()
+    {
+        GameManager.Instance.RaceDistance = RaceDistance;
+        FindObjectOfType<WorldGenerator>().SetupFinishLine(RaceDistance);
     }
 
     private void OnGameStateChanged()
@@ -75,6 +89,7 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
 
             case GameState.Started:
                 TypingManager.Instance.gameStarted = true;
+                RaceStartTimeNetwork = ElapsedNetworkTime;
                 break;
 
             case GameState.Finished:
@@ -84,7 +99,6 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
 
     private void OnTargetStringChanged()
     {
-        Debug.Log("Should be setting string: " + TargetString);
         TypingManager.Instance.targetString = TargetString;
     }
 
@@ -97,6 +111,10 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
             SpawnpointManager.Instance.GenerateBots();
             Runner.SessionInfo.IsOpen = false;
         }
+
+        if (CountDownValue == 5)
+            if (CurrentStatusText != null)
+                CurrentStatusText.gameObject.SetActive(false);
 
         if (IsMaster && CountDownValue <= 0)
             SetState(GameState.Started);
@@ -136,11 +154,17 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
             OnTargetStringChanged();
             OnCountDownValueChanged();
             OnGameStateChanged();
+            OnRaceDistanceChanged();
         }
     }
 
+    bool countDownStarted;
+    bool joined;
+
     IEnumerator CountDownCoroutine()
     {
+        countDownStarted = true;
+
         while (CountDownValue > 0)
         {
             yield return new WaitForSeconds(1);

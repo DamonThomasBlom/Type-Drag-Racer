@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
 
     void AssignPlayerTransform()
     {
+        if (playerTransform != null) { return; }
         var playerGo = GameObject.FindGameObjectWithTag("Player");
         if (playerGo)
             playerTransform = playerGo.transform;
@@ -51,7 +52,8 @@ public class Player : MonoBehaviour
 
     #endregion
 
-    public string username;
+    public string username { get; set; }
     public string carName;
     public Transform playerTransform;
+    public RemotePlayer localPlayerInstance;
 }

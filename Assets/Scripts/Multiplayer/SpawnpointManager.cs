@@ -37,7 +37,7 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
         if (player == Runner.LocalPlayer)
         {
             SpawnLocalPlayer();
-            Invoke(nameof(SpawnRemotePlayer), 0.5f);
+            //Invoke(nameof(SpawnRemotePlayer), 0.5f);
 
             if (Runner.IsSharedModeMasterClient)
             {
@@ -50,8 +50,10 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
             {
                 Vector3 spawnPoint = SerializedSpawnPoints.Instance.GetRandomPlayerSpawnPoint().position;
                 networkPlayerSpawnPoint.AssignSpawnPointRpc(spawnPoint, player);
+                networkPlayerSpawnPoint.UpdateSpawnPointsRpc(SerializedSpawnPoints.Instance.GetTakenSpawnPoints());
             }
         }
+
         //if (Runner.IsSharedModeMasterClient)
         //{
         //    if (player == Runner.LocalPlayer)
@@ -74,7 +76,9 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
     {
         // Spawn local player
         randomSpawnPoint = SerializedSpawnPoints.Instance.GetRandomPlayerSpawnPoint().position;
-        Instantiate(localPlayerPrefab, randomSpawnPoint, Quaternion.identity);
+        Player.Instance.playerTransform = Instantiate(localPlayerPrefab, randomSpawnPoint, Quaternion.identity).transform;
+
+        SpawnRemotePlayer();
     }
 
     public void SpawnRemotePlayer()
@@ -82,7 +86,10 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
         Transform localPlayerTransform = Player.Instance.playerTransform;
 
         var runner = NetworkRunner.GetRunnerForGameObject(gameObject);
-        networkPlayerSpawnPoint = runner.Spawn(remotePlayerPrefab, localPlayerTransform.position, Quaternion.identity).GetComponent<NetworkPlayerSpawnPoint>();
+        NetworkObject networkObject = runner.Spawn(remotePlayerPrefab, localPlayerTransform.position, Quaternion.identity);
+        networkPlayerSpawnPoint = networkObject.GetComponent<NetworkPlayerSpawnPoint>();
+        Player.Instance.localPlayerInstance = networkObject.GetComponent<RemotePlayer>();
+        Player.Instance.username += " - " + networkObject.Id.ToString(); 
     }
 
     public void AssignSpawnPoint(Vector3 spawnPoint)
@@ -136,6 +143,8 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
             // Mark the spawn point as occupied
             SerializedSpawnPoints.Instance.SpawnPoints[spawnPoint] = true;
         }
+
+        networkPlayerSpawnPoint.UpdateSpawnPointsRpc(SerializedSpawnPoints.Instance.GetTakenSpawnPoints());
     }
 
     private int ChooseRandomIndex(List<float> probabilities)

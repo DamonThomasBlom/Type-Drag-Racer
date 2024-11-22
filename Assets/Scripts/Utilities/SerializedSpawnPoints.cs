@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SerializedSpawnPoints : SerializedMonoBehaviour
@@ -51,10 +54,34 @@ public class SerializedSpawnPoints : SerializedMonoBehaviour
         int randomIndex = Random.Range(0, availableSpawnPoints.Count);
         Transform randomSpawnPoint = availableSpawnPoints[randomIndex];
 
+        Debug.Log("Get Spawn Point ran at " + Time.time + " with index " +  randomIndex);
+
         // Mark the selected spawn point as occupied
         SpawnPoints[randomSpawnPoint] = true;
 
         return randomSpawnPoint;
+    }
+
+    public string GetTakenSpawnPoints()
+    {
+        List<bool> result = new List<bool>();
+
+        foreach(var spawnPoint in SpawnPoints)
+        {
+            result.Add(spawnPoint.Value);
+        }
+
+        return JsonConvert.SerializeObject(result);
+    }
+
+    public void UpdateTakenSpawnPoints(string data)
+    {
+        List<bool> TakenSpawnPoints = JsonConvert.DeserializeObject<List<bool>>(data);
+
+        for(int i = 0; i < SpawnPoints.Count; i++)
+        {
+            SpawnPoints[SpawnPoints.ElementAt(i).Key] = TakenSpawnPoints[i];
+        }
     }
 
     [Button]

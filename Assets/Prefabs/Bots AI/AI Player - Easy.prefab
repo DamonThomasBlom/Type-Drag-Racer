@@ -564,6 +564,7 @@ GameObject:
   - component: {fileID: 6923205967004499948}
   - component: {fileID: 8580743916500918693}
   - component: {fileID: 7441112396144304202}
+  - component: {fileID: 9181333841505683596}
   m_Layer: 0
   m_Name: AI Player - Easy
   m_TagString: Player
@@ -625,6 +626,9 @@ MonoBehaviour:
   difficultyLevel: 1
   speedText: {fileID: 4388082097131905662}
   nameText: {fileID: 3342331500129193500}
+  _TypingInterval: 0
+  AIInput: 
+  distanceTraveled: 0
 --- !u!114 &2297106098460924971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,7 +636,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6191134382655388130}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
@@ -640,7 +644,7 @@ MonoBehaviour:
   SyncScale: 0
   SyncParent: 0
   _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
+  DisableSharedModeInterpolation: 1
 --- !u!114 &1807367553740666193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,6 +665,7 @@ MonoBehaviour:
   - {fileID: 4043259831742986997}
   - {fileID: 2297106098460924971}
   - {fileID: 6923205967004499948}
+  - {fileID: 9181333841505683596}
 --- !u!114 &6923205967004499948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -805,3 +810,19 @@ MonoBehaviour:
   maxPitch: 5
   pitchMultiplier: 1
   maxRandomness: 0.2
+--- !u!114 &9181333841505683596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6191134382655388130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db481941e3fc124cba73cd6f6da7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Position: {x: 0, y: 0, z: 0}
+  _Rotation: {x: 0, y: 0, z: 0, w: 0}
+  LerpSpeed: 10
+  SnapThreshold: 10

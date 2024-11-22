@@ -62,6 +62,8 @@ public class GameManager : SerializedMonoBehaviour
     // This converts a KM/H to units inside of unity
     public float conversionFactor = 0.27778f;
 
+    public float RaceDistance = 9999999;
+
     [Button]
     public void CalculateAverageWordsPerMinute()
     {

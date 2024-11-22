@@ -1,4 +1,5 @@
 using Fusion;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NetworkPlayerSpawnPoint : NetworkBehaviour
@@ -10,6 +11,12 @@ public class NetworkPlayerSpawnPoint : NetworkBehaviour
     {
         spawnPoint = position;
         Invoke(nameof(AssingSpawnPointDelayed), 1);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void UpdateSpawnPointsRpc(string data)
+    {
+        SerializedSpawnPoints.Instance.UpdateTakenSpawnPoints(data);
     }
 
     void AssingSpawnPointDelayed()

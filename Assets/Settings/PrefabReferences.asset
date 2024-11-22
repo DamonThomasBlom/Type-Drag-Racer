@@ -42,7 +42,11 @@ MonoBehaviour:
     type: 3}
   roadPrefab8: {fileID: 2578709902239643541, guid: e95084f4290d7cc47a1b246f96b41301,
     type: 3}
-  finishLineRoadPrefab2: {fileID: 0}
-  finishLineRoadPrefab4: {fileID: 0}
-  finishLineRoadPrefab6: {fileID: 0}
-  finishLineRoadPrefab8: {fileID: 0}
+  finishLineRoadPrefab2: {fileID: 5735935228060532648, guid: adb67649ee460b54cbe16e9a0e0f2eb6,
+    type: 3}
+  finishLineRoadPrefab4: {fileID: 3547069631631585315, guid: 61e47cbbf55c6504d9d02be7f90ba5ea,
+    type: 3}
+  finishLineRoadPrefab6: {fileID: 6222144942730610986, guid: 58bb77d3222186b41a42f03db8c11268,
+    type: 3}
+  finishLineRoadPrefab8: {fileID: 1405129274213212431, guid: ed092b8988a3bd348942d64fc68b9c9d,
+    type: 3}

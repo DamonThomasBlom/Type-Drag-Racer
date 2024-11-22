@@ -65,6 +65,13 @@ public class WorldGenerator : MonoBehaviour
         CheckBuildings();
     }
 
+    public void SetupFinishLine(float distance)
+    {
+        distance -= 5;
+        // Spawn the finish line road
+        Instantiate(prefabReferences.GetFinishLineRoadPrefab(playerCount), OffsetZValue(distance), Quaternion.identity);
+    }
+
     private void SetupBuilding()
     {
         if (disableBuildings) { return; }
