@@ -84,9 +84,8 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void FinishedRaceRpc(float time, string name)
+    public void FinishedRaceRpc(float time, string name, int wordsPerMinute)
     {
-        Debug.Log(name + " finished race at " + time);
-        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name });
+        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name, WPM = wordsPerMinute });
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum GameState
 {
@@ -44,10 +45,18 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     [Networked]
     public float RaceStartTimeNetwork { get; set; }
 
+    // UNITY EVENTS
+    public UnityEvent OnGameStarted = new UnityEvent();
+    public UnityEvent OnGameFinished = new UnityEvent();
+
+    public float MasterClientPing;
+
     public override void Spawned()
     {
         base.Spawned();
         joined = true;
+        DelayedActionUtility.Instance.PerformActionWithDelay(2f, () => Debug.Log("Delayed action triggered!"));
+        //StartCoroutine(PingPoll());
 
         if (CurrentStatusText != null)
             CurrentStatusText.text = "Waiting for players...";
@@ -71,6 +80,8 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     {
         if (joined && IsMaster && !countDownStarted)
             StartCoroutine(CountDownCoroutine());
+        if (joined && IsMaster)
+            MasterClientPing = GetPing();
     }
 
     private void OnRaceDistanceChanged()
@@ -88,13 +99,25 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
                 break;
 
             case GameState.Started:
-                TypingManager.Instance.gameStarted = true;
-                RaceStartTimeNetwork = ElapsedNetworkTime;
+                // Because the master is controlling the flow of the game they have slight advantage because of their ping, this resolves 
+                // the issue of the master starting the game with an advantage
+                if (IsMaster)
+                    DelayedActionUtility.Instance.PerformActionWithDelay(MasterClientPing, () => StartRace());
+                else
+                    StartRace();
                 break;
 
             case GameState.Finished:
+                OnGameFinished.Invoke();
                 break;
         }
+    }
+
+    private void StartRace()
+    {
+        TypingManager.Instance.gameStarted = true;
+        RaceStartTimeNetwork = ElapsedNetworkTime;
+        OnGameStarted.Invoke();
     }
 
     private void OnTargetStringChanged()
@@ -117,12 +140,22 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
                 CurrentStatusText.gameObject.SetActive(false);
 
         if (IsMaster && CountDownValue <= 0)
+        {
             SetState(GameState.Started);
+        }
 
         if (CountdownUI.Instance != null)
         {
             CountdownUI.Instance.CountDownValue(CountDownValue);
         }
+    }
+
+    public float GetPing()
+    {
+        float ping = (float)Runner.GetPlayerRtt(Runner.LocalPlayer);
+        //Debug.Log("Ping: " + ping.ToString("F2"));
+
+        return ping;
     }
 
     public void SetTargetString()

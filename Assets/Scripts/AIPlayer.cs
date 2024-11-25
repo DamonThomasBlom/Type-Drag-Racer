@@ -68,7 +68,6 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
 
     private void Update()
     {
-        AssignOwner();
         if (!Object.HasStateAuthority) { return; }
         if (!TypingManager.Instance.gameStarted) { return; }
 
@@ -92,7 +91,7 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         if (distanceTraveled >= GameManager.Instance.RaceDistance && !_raceFinished)
         {
             _raceFinished = true;
-            AiFinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, nameText.text);
+            AiFinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, nameText.text, Stats.wordsPerMinute);
         }
 
         // Update the typing timer
@@ -191,31 +190,10 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         AIInput = words;
     }
 
-    void AssignOwner()
-    {
-        if (NetworkRunner.GetRunnerForGameObject(gameObject) == null)
-            Debug.Log("Runner is null");
-
-        string debugString = string.Empty;
-
-        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsConnectedToServer)
-            debugString += "Connected to server";
-        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsSharedModeMasterClient)
-            debugString += "\nIs shared mode master";
-        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsSceneAuthority)
-            debugString += "\nIs Scene authority";
-        if (NetworkRunner.GetRunnerForGameObject(gameObject).IsShutdown)
-            debugString += "\nIs Shut down";
-
-        //if (Object.StateAuthority. != NetworkRunner.GetRunnerForGameObject(gameObject).)
-
-        Debug.Log(debugString);
-    }
-
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void AiFinishedRaceRpc(float time, string name)
+    public void AiFinishedRaceRpc(float time, string name, int wordsPerMinute)
     {
         Debug.Log(name + " finished race at " + time);
-        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name });
+        RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name, WPM = wordsPerMinute });
     }
 }
