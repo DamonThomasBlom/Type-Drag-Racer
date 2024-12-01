@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -52,8 +53,21 @@ public class Player : MonoBehaviour
 
     #endregion
 
-    public string username { get; set; }
+    [ShowInInspector] public string PlayerName { get; set; }
+    public RaceGameMode GameMode;
     public string carName;
     public Transform playerTransform;
     public RemotePlayer localPlayerInstance;
+    [ShowInInspector] public GameSettings GameSettings;
+}
+
+public enum RaceGameMode { QuickPlay, SinglePlayer, Multiplayer, Practice }
+
+public struct GameSettings
+{
+    public PlayerCount PlayerCount;
+    public RaceDistance RaceDistance;
+    public TypingDifficulty TypingDifficulty;
+    public AIDifficulty AIDifficulty;
+    public TrackEnvironment TrackEnvironment;
 }

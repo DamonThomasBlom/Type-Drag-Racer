@@ -33,7 +33,7 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
         base.Spawned();
         if (isLocalPlayer)
         {
-            playerName = Player.Instance.username;
+            playerName = Player.Instance.PlayerName;
             carPrefabName = Player.Instance.carName;
             localPlayerTransform = Player.Instance.playerTransform;
             localPlayerController = localPlayerTransform.GetComponent<PlayerController>();

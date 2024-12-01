@@ -42,7 +42,7 @@ public class RaceLeaderboardManager : MonoBehaviour
 
         leaderBoardPosition++;
 
-        if (entry.Name == Player.Instance.username)
+        if (entry.Name == Player.Instance.PlayerName)
         {
             // Enable and set the finishText with a message
             if (FinishText != null)

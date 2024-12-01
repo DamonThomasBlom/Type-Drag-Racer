@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour, ICarSpeed
         {
             Debug.Log("Race finsihed");
             _raceFinished = true;
-            Player.Instance.localPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.username, gameStatistics.wordsPerMinute);
+            Player.Instance.localPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.PlayerName, gameStatistics.wordsPerMinute);
             NetworkGameManager.Instance.OnGameFinished.Invoke();
         }
 

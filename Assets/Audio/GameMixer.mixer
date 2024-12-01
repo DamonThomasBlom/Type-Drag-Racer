@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!243 &-6023985261165029543
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Music
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 751524c79b5a0764392a4f0bccc68b6d
+  m_Children:
+  - {fileID: 5011455815520153759}
+  m_Volume: be287dae1f34c5940970c1c2303b5588
+  m_Pitch: b88f9d90d9eb72b4794a22322f06f586
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: 3135908137369722254}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
+--- !u!241 &24100000
+AudioMixerController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GameMixer
+  m_OutputGroup: {fileID: 0}
+  m_MasterGroup: {fileID: 24300002}
+  m_Snapshots:
+  - {fileID: 24500006}
+  m_StartSnapshot: {fileID: 24500006}
+  m_SuspendThreshold: -80
+  m_EnableSuspend: 1
+  m_UpdateMode: 0
+  m_ExposedParameters: []
+  m_AudioMixerGroupViews:
+  - guids:
+    - 972d7c63ac03fe64caa8421808221e1c
+    - 751524c79b5a0764392a4f0bccc68b6d
+    - 213bcd99055888140bd3611fdf3d10d0
+    name: View
+  m_CurrentViewIndex: 0
+  m_TargetSnapshot: {fileID: 24500006}
+--- !u!243 &24300002
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Master
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 972d7c63ac03fe64caa8421808221e1c
+  m_Children:
+  - {fileID: -6023985261165029543}
+  m_Volume: 359c388cb86a34d40ad1e28938d1b77f
+  m_Pitch: 4a23c277ed975cc44aea9821ed688d21
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: 24400004}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
+--- !u!244 &24400004
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 467349d1089fe9b47b90f8e35cd045f8
+  m_EffectName: Attenuation
+  m_MixLevel: a3c9d1c03c1666841a24209b2dd21bc9
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!245 &24500006
+AudioMixerSnapshotController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Snapshot
+  m_AudioMixer: {fileID: 24100000}
+  m_SnapshotID: 5e890c78f764f5846b65db1c4e86875d
+  m_FloatValues:
+    359c388cb86a34d40ad1e28938d1b77f: 0.13552584
+  m_TransitionOverrides: {}
+--- !u!244 &3135908137369722254
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 2c720d44bae419f44b33365f14ba2582
+  m_EffectName: Attenuation
+  m_MixLevel: 00a75f0dc175bef49ba114aebd92bf86
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!244 &4172188062987567447
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 06f0d34814c0bb149b5ed826c8ea33e9
+  m_EffectName: Attenuation
+  m_MixLevel: 660dfd5bdefb7f841883a6b77cad82e1
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!243 &5011455815520153759
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SFX
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 213bcd99055888140bd3611fdf3d10d0
+  m_Children: []
+  m_Volume: 454c354121441ec4aa46eb53137c97a1
+  m_Pitch: 03b2a92cf78480947bef656e56cb3689
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: 4172188062987567447}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
