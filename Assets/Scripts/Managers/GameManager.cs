@@ -64,6 +64,12 @@ public class GameManager : SerializedMonoBehaviour
 
     public float RaceDistance = 9999999;
 
+    public RacePlayerCount PlayerCount;
+    public RaceDistance RaceDistanceEnum;
+    public TypingDifficulty TypingDifficulty;
+    public AIDifficulty AIDifficulty;
+    public TrackEnvironment TrackEnvironment;
+
     [Button]
     public void CalculateAverageWordsPerMinute()
     {

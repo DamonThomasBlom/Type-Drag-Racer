@@ -7,10 +7,10 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 // ENUMS
-public enum PlayerCount { Two = 2, Four = 4, Six = 6, Eight = 8 }
-public enum RaceDistance { M500 = 500, KM1 = 1000, KM2 = 2000, KM5 = 5000, KM10 = 10000 }
+public enum RacePlayerCount { Two, Four, Six, Eight }
+public enum RaceDistance { M500, KM1, KM2, KM5, KM10 }
 public enum TypingDifficulty { Easy, Medium, Hard }
-public enum AIDifficulty { Easy, Medium, Hard, Random }
+public enum AIDifficulty { VeryEasy, Easy, Medium, Hard, VeryHard, Expert, Random }
 public enum TrackEnvironment { Classic, Desert, Forest, Urban }
 
 public class GameSettingsUI : MonoBehaviour
@@ -23,7 +23,7 @@ public class GameSettingsUI : MonoBehaviour
     public TMP_Dropdown trackEnvironmentDropdown;
 
     [Header("Defaults")]
-    private readonly PlayerCount defaultPlayers = PlayerCount.Eight;
+    private readonly RacePlayerCount defaultPlayers = RacePlayerCount.Eight;
     private readonly RaceDistance defaultRaceDistance = RaceDistance.M500;
     private readonly TypingDifficulty defaultTypingDifficulty = TypingDifficulty.Medium;
     private readonly AIDifficulty defaultAIDifficulty = AIDifficulty.Random;
@@ -46,7 +46,7 @@ public class GameSettingsUI : MonoBehaviour
         playersDropdown.ClearOptions();
         playersDropdown.AddOptions(
             new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(PlayerCount))
+                Enum.GetNames(typeof(RacePlayerCount))
                 .Select(name => new TMP_Dropdown.OptionData(name))
                 .ToList()
             )
@@ -126,7 +126,7 @@ public class GameSettingsUI : MonoBehaviour
     public void ApplySettings()
     {
         // Apply all settings, e.g., in the game manager
-        PlayerCount playerCount = (PlayerCount)playersDropdown.value;
+        RacePlayerCount playerCount = (RacePlayerCount)playersDropdown.value;
         RaceDistance raceDistance = (RaceDistance)raceDistanceDropdown.value;
         TypingDifficulty typingDifficulty = (TypingDifficulty)typingDifficultyDropdown.value;
         AIDifficulty aiDifficulty = (AIDifficulty)aiDifficultyDropdown.value;
@@ -142,7 +142,7 @@ public class GameSettingsUI : MonoBehaviour
         Player.Instance.GameSettings = gameSettings;
 
         Debug.Log($"Settings Applied:\n" +
-          $"Players: {playerCount.ToString()}\n" +
+          $"Players: {playerCount.ToPlayerString()}\n" +
           $"Race Distance: {raceDistance.ToString()}\n" +
           $"Typing Difficulty: {typingDifficulty.ToString()}\n" +
           $"AI Difficulty: {aiDifficulty.ToString()}\n" +

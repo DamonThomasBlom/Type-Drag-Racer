@@ -1,24 +1,39 @@
 using System;
+using System.Net.Http.Headers;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public static class GameSettingsExtensions
 {
     // PlayerCount Extensions
-    public static string GetDescription(this PlayerCount playerCount)
+    public static string GetDescription(this RacePlayerCount playerCount)
     {
         return $"{(int)playerCount} Players";
     }
 
-    public static int ToPlayerCount(this PlayerCount playerCount)
+    public static int ToPlayerCount(this RacePlayerCount playerCount)
     {
         switch (playerCount)
         {
-            case PlayerCount.Two: return 2;
-            case PlayerCount.Four: return 4;
-            case PlayerCount.Six: return 6;
-            case PlayerCount.Eight: return 8;
+            case RacePlayerCount.Two: return 2;
+            case RacePlayerCount.Four: return 4;
+            case RacePlayerCount.Six: return 6;
+            case RacePlayerCount.Eight: return 8;
             default: return 8;
         }
+    }
+
+    public static string ToPlayerString(this RacePlayerCount playerCount)
+    {
+        switch (playerCount)
+        {
+            case RacePlayerCount.Two: return "Two";
+            case RacePlayerCount.Four: return "Four";
+            case RacePlayerCount.Six: return "Six";
+            case RacePlayerCount.Eight: return "Eight";
+        }
+
+        return string.Empty;
     }
 
     // RaceDistance Extensions
@@ -37,7 +52,15 @@ public static class GameSettingsExtensions
 
     public static int ToMeters(this RaceDistance raceDistance)
     {
-        return (int)raceDistance;
+        switch (raceDistance)
+        {
+            case RaceDistance.M500: return 500;
+            case RaceDistance.KM1: return 1000;
+            case RaceDistance.KM2: return 2000;
+            case RaceDistance.KM5: return 5000;
+            case RaceDistance.KM10: return 10000;
+            default: return 500;
+        }
     }
 
     // TypingDifficulty Extensions

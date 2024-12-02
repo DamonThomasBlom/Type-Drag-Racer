@@ -55,11 +55,13 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     {
         base.Spawned();
         joined = true;
-        DelayedActionUtility.Instance.PerformActionWithDelay(2f, () => Debug.Log("Delayed action triggered!"));
-        //StartCoroutine(PingPoll());
+        InitializeGameSettings();
 
-        if (CurrentStatusText != null)
-            CurrentStatusText.text = "Waiting for players...";
+        DelayedActionUtility.Instance.PerformActionWithDelay(3f, () =>
+        {
+            if (CurrentStatusText != null)
+                CurrentStatusText.text = "Waiting for players...";
+        });
 
         OnRaceDistanceChanged();
 
@@ -67,6 +69,26 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
         {
             TypingManager.Instance.targetString = TargetString;
         }
+    }
+
+    void InitializeGameSettings()
+    {
+        var RoomProperties = Runner.SessionInfo.Properties;
+        RaceDistance distanceEnum = (RaceDistance)(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
+        RaceDistance = distanceEnum.ToMeters();
+
+        Debug.Log("Second");
+        //NetworkManager.DebugSessionProperties(RoomProperties);
+
+        Debug.Log($"Ints {(int)RoomProperties[NetworkManager.ROOM_PROP_PLAYER_COUNT]} - {(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE]}" +
+            $" - {(int)RoomProperties[NetworkManager.ROOM_PROP_TYPING_DIFFICULTY]} - {(int)RoomProperties[NetworkManager.ROOM_PROP_AI_DIFFICULTY]}" +
+            $" - {(int)RoomProperties[NetworkManager.ROOM_PROP_TRACK_ENVIRONMENT]}");
+
+        GameManager.Instance.PlayerCount = (RacePlayerCount)(int)RoomProperties[NetworkManager.ROOM_PROP_PLAYER_COUNT];
+        GameManager.Instance.RaceDistanceEnum = (RaceDistance)(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
+        GameManager.Instance.TypingDifficulty = (TypingDifficulty)(int)RoomProperties[NetworkManager.ROOM_PROP_TYPING_DIFFICULTY];
+        GameManager.Instance.AIDifficulty = (AIDifficulty)(int)RoomProperties[NetworkManager.ROOM_PROP_AI_DIFFICULTY];
+        GameManager.Instance.TrackEnvironment = (TrackEnvironment)(int)RoomProperties[NetworkManager.ROOM_PROP_TRACK_ENVIRONMENT];
     }
 
     public override void FixedUpdateNetwork()

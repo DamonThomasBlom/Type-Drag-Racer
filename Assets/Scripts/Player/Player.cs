@@ -58,14 +58,14 @@ public class Player : MonoBehaviour
     public string carName;
     public Transform playerTransform;
     public RemotePlayer localPlayerInstance;
-    [ShowInInspector] public GameSettings GameSettings;
+    [ShowInInspector] public GameSettings GameSettings = new GameSettings();
 }
 
 public enum RaceGameMode { QuickPlay, SinglePlayer, Multiplayer, Practice }
 
 public struct GameSettings
 {
-    public PlayerCount PlayerCount;
+    public RacePlayerCount PlayerCount;
     public RaceDistance RaceDistance;
     public TypingDifficulty TypingDifficulty;
     public AIDifficulty AIDifficulty;
