@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using static AIPlayer;
 
 [Serializable]
@@ -44,6 +45,9 @@ public class GameManager : SerializedMonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (InitializeGameSettingsOnStart)
+            InitializeGameSettings();
     }
 
     #endregion
@@ -64,11 +68,24 @@ public class GameManager : SerializedMonoBehaviour
 
     public float RaceDistance = 9999999;
 
+    public UnityEvent OnLocalRaceFinished = new UnityEvent();
+
+    [Header("Game Settings")]
+    public bool InitializeGameSettingsOnStart;
     public RacePlayerCount PlayerCount;
     public RaceDistance RaceDistanceEnum;
     public TypingDifficulty TypingDifficulty;
     public AIDifficulty AIDifficulty;
     public TrackEnvironment TrackEnvironment;
+
+    public void InitializeGameSettings()
+    {
+        if (SerializedSpawnPoints.Instance != null) 
+            SerializedSpawnPoints.Instance.SetPlayerCount(PlayerCount.ToInt());
+        WorldGenerator wg = FindObjectOfType<WorldGenerator>();
+        if (wg != null)
+            wg.playerCount = PlayerCount.ToInt();
+    }
 
     [Button]
     public void CalculateAverageWordsPerMinute()

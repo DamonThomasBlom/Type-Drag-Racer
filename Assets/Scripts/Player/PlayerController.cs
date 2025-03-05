@@ -29,15 +29,24 @@ public class PlayerController : MonoBehaviour, ICarSpeed
     {
         if (TypingManager.Instance == null) { return; }
 
-        gameStatistics = TypingManager.Instance.GameStats;
-        speed = TypingManager.Instance.GameStats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
+        gameStatistics = TypingManager.Instance.LiveGameStats;
 
+        // Race finished start slowing down
+        if (_raceFinished)
+        {
+            speed = Mathf.Lerp(speed, 0, Time.deltaTime / 2);
+            transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Time.deltaTime);
+            return;
+        }
+
+        speed = TypingManager.Instance.LiveGameStats.wordsPerMinute / TypingManager.Instance.fastestWPM * TypingManager.Instance.fastestCarSpeed;
         distanceTraveled = Vector3.Distance(startPosition, transform.position);
 
         if (distanceTraveled >= GameManager.Instance.RaceDistance && !_raceFinished)
         {
             Debug.Log("Race finsihed");
             _raceFinished = true;
+            GameManager.Instance.OnLocalRaceFinished.Invoke();   // Invoke locally for yourself
             Player.Instance.localPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.PlayerName, gameStatistics.wordsPerMinute);
             NetworkGameManager.Instance.OnGameFinished.Invoke();
         }

@@ -12,10 +12,43 @@ public class SerializedSpawnPoints : SerializedMonoBehaviour
     private void Awake()
     {
         Instance = this;
+
+        StartSpawnPoints = SpawnPoints;
     }
 
     [ShowInInspector]
     public Dictionary<Transform, bool> SpawnPoints = new Dictionary<Transform, bool>();
+
+    private Dictionary<Transform, bool> StartSpawnPoints = new Dictionary<Transform, bool>();
+
+    public void SetPlayerCount(int count)
+    {
+        if (count <= 0)
+            return; // Do nothing if count is non-positive.
+
+        // If `count` is less than or equal to the current number of spawn points, keep only the first `count` entries.
+        if (count <= SpawnPoints.Count)
+        {
+            SpawnPoints = SpawnPoints
+                .Take(count)
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+        else
+        {
+            // If `count` is greater, add back elements from `StartSpawnPoints` to reach the desired count.
+            foreach (var pair in StartSpawnPoints)
+            {
+                if (SpawnPoints.ContainsKey(pair.Key))
+                    continue; // Skip if already in `SpawnPoints`.
+
+                SpawnPoints[pair.Key] = pair.Value;
+
+                // Stop adding once we reach the desired count.
+                if (SpawnPoints.Count == count)
+                    break;
+            }
+        }
+    }
 
     [Button]
     public void AssignSpawnPoints()

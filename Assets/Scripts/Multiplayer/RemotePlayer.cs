@@ -1,9 +1,6 @@
 using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class RemotePlayer : NetworkBehaviour, ICarSpeed
@@ -16,6 +13,9 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
 
     [Networked, OnChangedRender(nameof(SetPlayerName))]
     public string playerName { get; set; }
+
+    [Networked, OnChangedRender(nameof(SetPlayerSpeed))]
+    public float networkedSpeed { get; set; }
 
     public bool isLocalPlayer => Object && Object.HasStateAuthority;
 
@@ -76,11 +76,17 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
             nameText.text = playerName;
     }
 
+    private void SetPlayerSpeed()
+    {
+        speed = networkedSpeed;
+    }
+
     protected virtual void ApplyLocalData()
     {
         transform.position = localPlayerTransform.position;
         stats = localPlayerController.gameStatistics;
         speed = localPlayerController.speed;
+        networkedSpeed = speed;
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

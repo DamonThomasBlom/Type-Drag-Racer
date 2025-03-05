@@ -42,12 +42,12 @@ public class TestingSceneSwitching : MonoBehaviour {
 			});
 		});
 
-		// Load next scene
-		LeanTween.delayedCall(cube, 0.5f, ()=>{
-			LeanTest.expect( tweenCompleteCnt==3, "Scheduled tweens completed:"+sceneIter);
-			if(sceneIter<5){
-				sceneIter++;
-				SceneManager.LoadScene(0);
+        // Load next scene
+        LeanTween.delayedCall(cube, 0.5f, ()=>{
+            LeanTest.expect(tweenCompleteCnt == 3, "Scheduled tweens completed:"+ sceneIter);
+			if(sceneIter < 5){
+                sceneIter++;
+                UnityEngine.SceneManagement.SceneManager.LoadScene(0);
 			}
 		});
 	}

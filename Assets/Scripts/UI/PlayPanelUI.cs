@@ -53,10 +53,8 @@ public class PlayPanelUI : MonoBehaviour
         {
             case RaceGameMode.QuickPlay:
             case RaceGameMode.Multiplayer:
-                SceneManager.LoadScene("Multiplayer");
-                break;
-
             case RaceGameMode.SinglePlayer:
+                CustomSceneManager.Instance.LoadScene("Multiplayer");
                 break;
 
             case RaceGameMode.Practice:

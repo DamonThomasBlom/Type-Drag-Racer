@@ -4,7 +4,6 @@ using Sirenix.OdinInspector;
 using Fusion;
 using System;
 using Random = UnityEngine.Random;
-using Unity.VisualScripting;
 
 [Serializable]
 public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
@@ -113,10 +112,8 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
             BotHardPrefab, BotVeryHardPrefab, BotExpertPrefab
         };
 
-        List<float> botSpawnChances = new List<float>
-        {
-            0.5f, 0.2f, 0.11f, 0.09f, 0.07f, 0.03f
-        };
+        // Get our bot spawn probabilities from our game manager
+        List<float> botSpawnChances = GameManager.Instance.AIDifficulty.ToBotSpawnChances();
 
         // Create a separate list to store spawn points that need bots
         List<Transform> unoccupiedSpawnPoints = new List<Transform>();

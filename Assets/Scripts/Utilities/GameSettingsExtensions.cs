@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,7 +12,7 @@ public static class GameSettingsExtensions
         return $"{(int)playerCount} Players";
     }
 
-    public static int ToPlayerCount(this RacePlayerCount playerCount)
+    public static int ToInt(this RacePlayerCount playerCount)
     {
         switch (playerCount)
         {
@@ -83,14 +84,45 @@ public static class GameSettingsExtensions
             case AIDifficulty.Easy: return "Easy AI";
             case AIDifficulty.Medium: return "Medium AI";
             case AIDifficulty.Hard: return "Hard AI";
+            case AIDifficulty.Expert: return "Expert AI";
             case AIDifficulty.Random: return "Random AI Difficulty";
             default: return "Unknown AI Difficulty";
         }
     }
 
+    public static List<float> ToBotSpawnChances(this AIDifficulty aIDifficulty)
+    {
+        List<float> probablities = new List<float>();
+
+        switch (aIDifficulty)
+        {
+            case AIDifficulty.Easy:
+                probablities = new List<float> { 0.4f, 0.6f, 0f, 0, 0, 0 };
+                break;
+
+            case AIDifficulty.Medium:
+                probablities = new List<float> { 0, 0.3f, 0.6f, 0.1f, 0, 0 };
+                break;
+
+            case AIDifficulty.Hard:
+                probablities = new List<float> { 0, 0, 0.1f, 0.6f, 0.3f, 0f };
+                break;
+
+            case AIDifficulty.Expert:
+                probablities = new List<float> { 0f, 0f, 0f, 0.1f, 0.2f, 0.7f };
+                break;
+
+            case AIDifficulty.Random:
+                probablities = new List<float> { 0.4f, 0.3f, 0.11f, 0.09f, 0.07f, 0.03f };
+                break;
+        }
+
+        return probablities;
+    }
+
     public static AIDifficulty GetRandomDifficulty()
     {
-        var difficulties = new[] { AIDifficulty.Easy, AIDifficulty.Medium, AIDifficulty.Hard };
+        var difficulties = new[] { AIDifficulty.Easy, AIDifficulty.Medium, AIDifficulty.Hard, AIDifficulty.Expert };
         return difficulties[UnityEngine.Random.Range(0, difficulties.Length)];
     }
 

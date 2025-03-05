@@ -1,12 +1,10 @@
 using Sirenix.OdinInspector;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static GameStatisticsCalculator;
 using ColorUtility = UnityEngine.ColorUtility;
 using Input = UnityEngine.Input;
 
@@ -25,7 +23,8 @@ public class TypingManager : MonoBehaviour
     public float gameStartTime = 30;
 
     //[ShowInInspector]
-    public GameStatistics GameStats;
+    public GameStatistics LiveGameStats;
+    public GameStatistics FinalGameStats;
 
     [HideInInspector]
     public GameStatisticsCalculator calculator;
@@ -69,6 +68,9 @@ public class TypingManager : MonoBehaviour
         calculator = GetComponent<GameStatisticsCalculator>();
         generatedWords = WordsManager.Instance.getRandomWords(targetWordCount);
 
+        // On race finished store a snapshot of our live game stats
+        GameManager.Instance.OnLocalRaceFinished.AddListener(() => { FinalGameStats = LiveGameStats; });
+
         targetString = string.Join(" ", generatedWords.ToArray());
 
         UpdateColors();
@@ -77,8 +79,87 @@ public class TypingManager : MonoBehaviour
 
     #endregion
 
+    void Start()
+    {
+        ResetTextPosition();
+    }
+
+    public RectTransform textTransform; // The RectTransform of the Text component
+    public float lineHeight = 30f; // Height of a single line in pixels (adjust based on font size)
+    public int wordsPerLine = 10; // Number of words per line
+    public float scrollSpeed = 5f; // Speed of the lerp (higher = faster)
+
+    private int currentLine = 0; // Tracks the current line
+    private Vector3 targetPosition; // Target position for the text
+    private bool isScrolling = false;
+
+    public void OnWordTyped()
+    {
+        // Call this function every time the user types a word
+        int totalWordsTyped = GetTotalWordsTyped(); // Replace with your actual word count logic
+        int newLine = (totalWordsTyped - wordsPerLine) / wordsPerLine;
+        newLine = newLine < 0 ? 0 : newLine; // Prevent negatives
+
+        // Check if we need to scroll up
+        if (newLine != currentLine && newLine < GetTotalLines())
+        {
+            Debug.Log("Current line - " + newLine);
+            currentLine = newLine;
+            ScrollText();
+        }
+    }
+
+    private void ScrollText()
+    {
+        // Calculate the new target position for the text
+        float newYPosition = currentLine * lineHeight;
+        targetPosition = new Vector3(textTransform.localPosition.x, newYPosition, textTransform.localPosition.z);
+
+        // Start scrolling
+        isScrolling = true;
+    }
+
+    private void ResetTextPosition()
+    {
+        // Reset the text to its starting position
+        textTransform.localPosition = Vector3.zero;
+        targetPosition = textTransform.localPosition;
+        isScrolling = false;
+    }
+
+    private int GetTotalWordsTyped()
+    {
+        int totalWordsTyped = LiveGameStats.totalCharactersTyped / 5;
+        return totalWordsTyped; 
+    }
+
+    private int GetTotalLines()
+    {
+        // Calculate the total number of lines based on the total word count
+        int totalWords = text.text.Split(' ').Length;
+        return Mathf.CeilToInt((float)totalWords / wordsPerLine);
+    }
+
     private void Update()
     {
+        // Scroll Text
+        if (isScrolling)
+        {
+            // Smoothly move the text toward the target position
+            textTransform.localPosition = Vector3.Lerp(
+                textTransform.localPosition,
+                targetPosition,
+                Time.deltaTime * scrollSpeed
+            );
+
+            // Stop scrolling when the text is close enough to the target position
+            if (Vector3.Distance(textTransform.localPosition, targetPosition) < 0.1f)
+            {
+                textTransform.localPosition = targetPosition; // Snap to target to prevent jitter
+                isScrolling = false;
+            }
+        }
+
         checkInput();
 
         if (gameStarted)
@@ -88,10 +169,10 @@ public class TypingManager : MonoBehaviour
             if (gameTimeInSeconds < gameStartTime)
             {
                 gameStartTime -= Time.deltaTime * 4;
-                GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameStartTime);
+                LiveGameStats = calculator.CalculateGameStatistics(userInput, targetString, gameStartTime);
             }
             else
-                GameStats = calculator.CalculateGameStatistics(userInput, targetString, gameTimeInSeconds);
+                LiveGameStats = calculator.CalculateGameStatistics(userInput, targetString, gameTimeInSeconds);
         }
 
         if (cursorBlinkTimer == 0)
@@ -118,16 +199,6 @@ public class TypingManager : MonoBehaviour
     }
 
     int currentWordIndex = 0;
-
-    //[Button]
-    //public void nextWord()
-    //{
-    //    if (currentWordIndex < generatedWords.Count)
-    //    {
-    //        userInput += generatedWords[currentWordIndex] + " ";
-    //        currentWordIndex++;
-    //    }
-    //}
 
     [Button]
     public void nextWord()
@@ -165,11 +236,6 @@ public class TypingManager : MonoBehaviour
     {
         while (true)
         {
-            //if (!inputField.isFocused)
-            //{
-            //    SelectInputField();
-            //}
-
             compareInput();
             yield return null;
         }
@@ -191,12 +257,10 @@ public class TypingManager : MonoBehaviour
             }
 
             if (Input.GetKeyDown(KeyCode.Backspace))
-            //if (Input.GetKey(KeyCode.Backspace))
             {
                 if (userInput.Length > 0)
                 {
                     userInput = userInput.Substring(0, userInput.Length - 1);
-                    //compareInput();
                 }
                 return;
             }
@@ -204,10 +268,10 @@ public class TypingManager : MonoBehaviour
 
             if (Input.inputString.Length == 1) 
             {
-                //Debug.Log("User input: " + (string.IsNullOrWhiteSpace(Input.inputString) ? "White space" : Input.inputString));
                 userInput += Input.inputString;
-                //compareInput();
             }
+
+            OnWordTyped();
         }
     }
 
@@ -217,26 +281,8 @@ public class TypingManager : MonoBehaviour
 
         int minLength = Mathf.Min(targetString.Length, userInput.Length);
 
-        //// Compare each character in the strings
-        //for (int i = 0; i < minLength; i++)
-        //{
-        //    if (targetString[i] == userInput[i])
-        //    {
-        //        // Correct character, color it green
-        //        coloredTextBuilder.Append($"<color={correctColorHex}>{userInput[i]}</color>");
-        //    }
-        //    else
-        //    {
-        //        // Incorrect character, color it red
-        //        if (string.IsNullOrWhiteSpace(targetString[i].ToString()))
-        //            coloredTextBuilder.Append($"<color={incorrectColorHex}>{userInput[i]}</color>");
-        //        else
-        //            coloredTextBuilder.Append($"<color={incorrectColorHex}>{targetString[i]}</color>");
-        //    }
-        //}
-
         // Apply monospace
-        //coloredTextBuilder.Append("<mspace=0.75em>");
+        //coloredTextBuilder.Append("<mspace=0.6em>");
 
         bool isCorrectSequence = false;
         bool isIncorrectSequence = false;
@@ -297,12 +343,7 @@ public class TypingManager : MonoBehaviour
 
         // Update the display text with colored characters
         string coloredText = coloredTextBuilder.ToString();
-        //inputField.text = coloredText;
-        //inputField.SetTextWithoutNotify(coloredText);
         text.SetText(coloredText);
-
-        //if (inputField.caretPosition != minLength)
-        //    inputField.caretPosition = minLength;
     }
 
     private void UpdateColors()

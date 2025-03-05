@@ -373,6 +373,7 @@ MonoBehaviour:
   minPitch: 0.8
   maxPitch: 5
   pitchMultiplier: 1
+  maxRandomness: 0.1
 --- !u!135 &328345851
 SphereCollider:
   m_ObjectHideFlags: 0

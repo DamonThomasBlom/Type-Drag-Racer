@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 public enum RacePlayerCount { Two, Four, Six, Eight }
 public enum RaceDistance { M500, KM1, KM2, KM5, KM10 }
 public enum TypingDifficulty { Easy, Medium, Hard }
-public enum AIDifficulty { VeryEasy, Easy, Medium, Hard, VeryHard, Expert, Random }
+public enum AIDifficulty { Easy, Medium, Hard, Expert,  Random }
 public enum TrackEnvironment { Classic, Desert, Forest, Urban }
 
 public class GameSettingsUI : MonoBehaviour
@@ -36,7 +36,6 @@ public class GameSettingsUI : MonoBehaviour
         AddDropdownListeners();
 
         typingDifficultyDropdown.interactable = false;
-        aiDifficultyDropdown.interactable = false;
         trackEnvironmentDropdown.interactable = false;
     }
 

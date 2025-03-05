@@ -78,7 +78,7 @@ public class WordsManager : MonoBehaviour
 
     void loadWords()
     {
-        string filePath = "words_200";
+        string filePath = "words_1k";
 
         // Load the JSON file as a TextAsset using the Resources class
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath);

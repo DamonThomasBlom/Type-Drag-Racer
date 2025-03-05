@@ -9,6 +9,7 @@ public class WorldGenerator : MonoBehaviour
     public int playerCount = 2;
 
     [Header("Settings")]
+    public bool InitOnStart = true;
     public bool disableBuildings;
     [Tooltip("Max pooled roads")]
     public int maxRoadChunks = 10;

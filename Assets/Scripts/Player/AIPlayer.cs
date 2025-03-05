@@ -71,6 +71,14 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         if (!Object.HasStateAuthority) { return; }
         if (!TypingManager.Instance.gameStarted) { return; }
 
+        // Race finished start slowing down
+        if (_raceFinished)
+        {
+            speed = Mathf.Lerp(speed, 0, Time.deltaTime / 2);
+            transform.Translate(Vector3.forward * speed * GameManager.Instance.conversionFactor * Time.deltaTime);
+            return;
+        }
+
         // Check if the typing manager is assigned and the AI is ready to type
         if (typingTimer >= TypingInterval && correctTargetSentence.Count > 0)
         {
@@ -91,6 +99,8 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
         if (distanceTraveled >= GameManager.Instance.RaceDistance && !_raceFinished)
         {
             _raceFinished = true;
+            // Fresh update of speed;
+            Stats = TypingManager.Instance.calculator.CalculateAIGameStatistics(AIInput, TypingManager.Instance.targetString, TypingManager.Instance.getGameTime());
             AiFinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, nameText.text, Stats.wordsPerMinute);
         }
 

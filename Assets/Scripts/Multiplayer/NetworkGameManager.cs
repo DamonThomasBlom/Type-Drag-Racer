@@ -1,6 +1,8 @@
 using Fusion;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,7 +26,7 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     [Networked, OnChangedRender(nameof(OnGameStateChanged))]
     public GameState State { get; set; }
 
-    [Networked, Capacity(500), OnChangedRender(nameof(OnTargetStringChanged))]
+    [Networked, Capacity(1000), OnChangedRender(nameof(OnTargetStringChanged))]
     public string TargetString { get; set; }
 
     [Networked, OnChangedRender(nameof(OnCountDownValueChanged))]
@@ -54,7 +56,7 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     public override void Spawned()
     {
         base.Spawned();
-        joined = true;
+        _joined = true;
         InitializeGameSettings();
 
         DelayedActionUtility.Instance.PerformActionWithDelay(3f, () =>
@@ -74,21 +76,34 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
     void InitializeGameSettings()
     {
         var RoomProperties = Runner.SessionInfo.Properties;
-        RaceDistance distanceEnum = (RaceDistance)(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
+
+        // If no properties were set then we are the first player to join a quick play so we should set default values
+        if (RoomProperties.Count == 0)
+        {
+            var DefaultRoomProperties = NetworkManager.Instance.GetDefaultSessionProperties();
+
+            var result = Runner.SessionInfo.UpdateCustomProperties(DefaultRoomProperties);
+
+            SetupGameProperties(new ReadOnlyDictionary<string, SessionProperty>(DefaultRoomProperties));
+            return;
+        }
+
+        // Properties set already before hand when joining
+        SetupGameProperties(RoomProperties);
+    }
+
+    private void SetupGameProperties(ReadOnlyDictionary<string, SessionProperty> DefaultRoomProperties)
+    {
+        RaceDistance distanceEnum = (RaceDistance)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
         RaceDistance = distanceEnum.ToMeters();
 
-        Debug.Log("Second");
-        //NetworkManager.DebugSessionProperties(RoomProperties);
+        GameManager.Instance.PlayerCount = (RacePlayerCount)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_PLAYER_COUNT];
+        GameManager.Instance.RaceDistanceEnum = (RaceDistance)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
+        GameManager.Instance.TypingDifficulty = (TypingDifficulty)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_TYPING_DIFFICULTY];
+        GameManager.Instance.AIDifficulty = (AIDifficulty)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_AI_DIFFICULTY];
+        GameManager.Instance.TrackEnvironment = (TrackEnvironment)(int)DefaultRoomProperties[NetworkManager.ROOM_PROP_TRACK_ENVIRONMENT];
 
-        Debug.Log($"Ints {(int)RoomProperties[NetworkManager.ROOM_PROP_PLAYER_COUNT]} - {(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE]}" +
-            $" - {(int)RoomProperties[NetworkManager.ROOM_PROP_TYPING_DIFFICULTY]} - {(int)RoomProperties[NetworkManager.ROOM_PROP_AI_DIFFICULTY]}" +
-            $" - {(int)RoomProperties[NetworkManager.ROOM_PROP_TRACK_ENVIRONMENT]}");
-
-        GameManager.Instance.PlayerCount = (RacePlayerCount)(int)RoomProperties[NetworkManager.ROOM_PROP_PLAYER_COUNT];
-        GameManager.Instance.RaceDistanceEnum = (RaceDistance)(int)RoomProperties[NetworkManager.ROOM_PROP_RACE_DISTANCE];
-        GameManager.Instance.TypingDifficulty = (TypingDifficulty)(int)RoomProperties[NetworkManager.ROOM_PROP_TYPING_DIFFICULTY];
-        GameManager.Instance.AIDifficulty = (AIDifficulty)(int)RoomProperties[NetworkManager.ROOM_PROP_AI_DIFFICULTY];
-        GameManager.Instance.TrackEnvironment = (TrackEnvironment)(int)RoomProperties[NetworkManager.ROOM_PROP_TRACK_ENVIRONMENT];
+        GameManager.Instance.InitializeGameSettings();
     }
 
     public override void FixedUpdateNetwork()
@@ -100,9 +115,9 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
 
     private void Update()
     {
-        if (joined && IsMaster && !countDownStarted)
+        if (_joined && IsMaster && !_countDownStarted)
             StartCoroutine(CountDownCoroutine());
-        if (joined && IsMaster)
+        if (_joined && IsMaster)
             MasterClientPing = GetPing();
     }
 
@@ -200,7 +215,10 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
             // Only start the countdown if we are the player
             if (player == Runner.LocalPlayer)
             {
-                CountDownValue = 15;
+                if (Player.Instance.GameMode == RaceGameMode.SinglePlayer)
+                    CountDownValue = 5;
+                else
+                    CountDownValue = 20;
                 StartCoroutine(CountDownCoroutine());
             }
         }
@@ -213,12 +231,12 @@ public class NetworkGameManager : NetworkBehaviour, IPlayerJoined
         }
     }
 
-    bool countDownStarted;
-    bool joined;
+    bool _countDownStarted;
+    bool _joined;
 
     IEnumerator CountDownCoroutine()
     {
-        countDownStarted = true;
+        _countDownStarted = true;
 
         while (CountDownValue > 0)
         {
