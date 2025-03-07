@@ -16,15 +16,16 @@ public class MainMenuUI : MonoBehaviour
 
     public UISlideIn PlayPanel;
     public UISlideIn SettingsPanel;
+    public UISlideIn CustomizePanel;
 
     private void Awake()
     {
-        CustomizeBtn.interactable = false;
         StatsBtn.interactable = false;
         LeaderboardBtn.interactable = false;
         //SettingsBtn.interactable = false;
 
         PlayBtn.onClick.AddListener(() => CloseAllPanels(() => EnablePlayPanel(!PlayPanel.On)));
+        CustomizeBtn.onClick.AddListener(() => CloseAllPanels(() => EnableCustomizePanel(!CustomizePanel.On)));
         SettingsBtn.onClick.AddListener(() => CloseAllPanels(() => EnableSettingsPanel(!SettingsPanel.On)));
     }
 
@@ -58,6 +59,21 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
+    void EnableCustomizePanel(bool enabled)
+    {
+        Debug.Log("Customize panel: " + enabled);
+
+        if (enabled)
+        {
+            CustomizePanel.gameObject.SetActive(true);
+            CustomizePanel.SlideIn();
+        }
+        else
+        {
+            CustomizePanel.SlideOut(() => CustomizePanel.gameObject.SetActive(false));    
+        }
+    }
+
     void EnableSettingsPanel(bool enabled)
     {
         Debug.Log("Settings panel: " + enabled);
@@ -69,7 +85,7 @@ public class MainMenuUI : MonoBehaviour
         }
         else
         {
-            SettingsPanel.SlideOut(() => SettingsPanel.gameObject.SetActive(false));    
+            SettingsPanel.SlideOut(() => SettingsPanel.gameObject.SetActive(false));
         }
     }
 }

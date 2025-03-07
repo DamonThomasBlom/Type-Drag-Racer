@@ -428,6 +428,7 @@ GameObject:
   - component: {fileID: 4334868756482326219}
   - component: {fileID: 4355210855468810490}
   - component: {fileID: 4761785062108928999}
+  - component: {fileID: 1015522358147592085}
   m_Layer: 0
   m_Name: Car_Ambo
   m_TagString: Untagged
@@ -521,13 +522,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 4790175121466570554}
-  - {fileID: 1074626808973792926}
   - {fileID: 3778859503495481041}
+  RightWheels:
+  - {fileID: 1074626808973792926}
   - {fileID: 6930142107413121814}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &1015522358147592085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3942721888151550510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4831854002108541230
 GameObject:
   m_ObjectHideFlags: 0

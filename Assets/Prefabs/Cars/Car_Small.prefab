@@ -510,6 +510,7 @@ GameObject:
   - component: {fileID: 5260968041679608840}
   - component: {fileID: 220858889434914839}
   - component: {fileID: 4515725173304955231}
+  - component: {fileID: 7916581731557602900}
   m_Layer: 0
   m_Name: Car_Small
   m_TagString: Untagged
@@ -601,13 +602,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 4204263471440264150}
-  - {fileID: 6471097191166934073}
   - {fileID: 319461516195201788}
+  RightWheels:
+  - {fileID: 6471097191166934073}
   - {fileID: 5430797319706301396}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &7916581731557602900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7072434189638249491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8244548846465812504
 GameObject:
   m_ObjectHideFlags: 0

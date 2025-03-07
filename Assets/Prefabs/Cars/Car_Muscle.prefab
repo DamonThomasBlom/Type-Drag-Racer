@@ -510,6 +510,7 @@ GameObject:
   - component: {fileID: 4394510471436343995}
   - component: {fileID: 600434213793429899}
   - component: {fileID: 2844571776561824739}
+  - component: {fileID: 1846410916489574298}
   m_Layer: 0
   m_Name: Car_Muscle
   m_TagString: Untagged
@@ -601,13 +602,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 3430933733208755159}
-  - {fileID: 6227394914171249916}
   - {fileID: 2391418445217713171}
+  RightWheels:
+  - {fileID: 6227394914171249916}
   - {fileID: 31653989916546052}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &1846410916489574298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7155752580406512578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7364696094024013544
 GameObject:
   m_ObjectHideFlags: 0

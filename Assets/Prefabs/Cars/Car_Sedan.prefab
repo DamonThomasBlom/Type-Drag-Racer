@@ -427,6 +427,7 @@ GameObject:
   - component: {fileID: 8885527886161432195}
   - component: {fileID: 2620025295842412230}
   - component: {fileID: 258060967424559410}
+  - component: {fileID: 2153808937624739358}
   m_Layer: 0
   m_Name: Car_Sedan
   m_TagString: Untagged
@@ -519,13 +520,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 7408300759301605079}
-  - {fileID: 6162442975562826627}
   - {fileID: 5514703574379542379}
+  RightWheels:
+  - {fileID: 6162442975562826627}
   - {fileID: 8665753338603159403}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &2153808937624739358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4526321054853090209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4531098068839155044
 GameObject:
   m_ObjectHideFlags: 0

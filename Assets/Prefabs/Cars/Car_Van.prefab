@@ -927,6 +927,7 @@ GameObject:
   - component: {fileID: 4325131141899491438}
   - component: {fileID: 579619524436632324}
   - component: {fileID: 7054200152467688595}
+  - component: {fileID: 5025380087418778307}
   m_Layer: 0
   m_Name: Car_Van
   m_TagString: Untagged
@@ -1020,10 +1021,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 2665568995594889888}
-  - {fileID: 2085274575709290607}
   - {fileID: 4221979488174603059}
+  RightWheels:
+  - {fileID: 2085274575709290607}
   - {fileID: 5181948576542193746}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &5025380087418778307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7007576757240433713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

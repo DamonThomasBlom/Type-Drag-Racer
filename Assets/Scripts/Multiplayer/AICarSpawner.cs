@@ -9,9 +9,16 @@ public class AICarSpawner : NetworkBehaviour
     [Networked, OnChangedRender(nameof(SpawnCar))]
     public string carPrefabName {  get; set; }
 
+    [Networked, OnChangedRender(nameof(UpdateAIMaterial)), Capacity(50)]
+    public string carMaterialName { get; set; }
+
+    [Networked, OnChangedRender(nameof(UpdateAIWheels)), Capacity(50)]
+    public string carWheelName { get; set; }
+
     public Transform spawnPoint;
 
-    private GameObject carInstance;
+    private GameObject _carInstance;
+    private CustomizeCar _customizeCar;
 
     public override void Spawned()
     {
@@ -19,8 +26,6 @@ public class AICarSpawner : NetworkBehaviour
 
         if (HasStateAuthority)
         {
-            // Delay the spawn of the car
-            //Invoke(nameof(SpawnRandomCar), 1f);
             SpawnRandomCar();
         }
         else 
@@ -28,14 +33,6 @@ public class AICarSpawner : NetworkBehaviour
             SpawnCar();
         }
     }
-
-    //[Rpc(RpcSources.All, RpcTargets.All)]
-    //public void SpawnRandomCarRpc(string carName, RpcInfo info = default)
-    //{
-    //    Debug.Log("Spawn Car RPC: " + carName);
-    //    var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(carName);
-    //    carInstance = Instantiate(selectedCarPrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
-    //}
 
     [Button]
     void SpawnRandomCar()
@@ -47,12 +44,10 @@ public class AICarSpawner : NetworkBehaviour
             return;
         }
 
-        // Randomly select a car name from the dictionary
-        List<string> carNames = new List<string>(PrefabManager.Instance.carDictionary.Keys);
-        string randomCarName = carNames[Random.Range(0, carNames.Count)];
+        carPrefabName = PrefabManager.Instance.GetRandomCarPrefabName();
+        carMaterialName = PrefabManager.Instance.GetRandomMaterialName();
+        carWheelName = PrefabManager.Instance.GetRandomWheelName();
 
-        carPrefabName = randomCarName;
-        //SpawnRandomCarRpc(randomCarName);
         InstantiateCar(carPrefabName);
     }
 
@@ -64,11 +59,38 @@ public class AICarSpawner : NetworkBehaviour
         }
     }
 
+    void UpdateAIMaterial()
+    {
+        if (!string.IsNullOrEmpty(carMaterialName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateMaterials(PrefabManager.Instance.GetMaterialByName(carMaterialName));
+        }
+    }
+
+    void UpdateAIWheels()
+    {
+        if (!string.IsNullOrEmpty(carWheelName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateWheels(PrefabManager.Instance.GetWheelScriptable(carWheelName));
+        }
+    }
+
     void InstantiateCar(string carName)
     {
-        if (carInstance != null) { return; }
+        if (_carInstance != null) { return; }
 
         var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(carName);
-        carInstance = Instantiate(selectedCarPrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
+        _carInstance = Instantiate(selectedCarPrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
+        _customizeCar = _carInstance.GetComponent<CustomizeCar>();
+
+        if (!string.IsNullOrEmpty(carMaterialName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateMaterials(PrefabManager.Instance.GetMaterialByName(carMaterialName));
+        }
+
+        if (!string.IsNullOrEmpty(carWheelName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateWheels(PrefabManager.Instance.GetWheelScriptable(carWheelName));
+        }
     }
 }

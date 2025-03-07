@@ -427,6 +427,7 @@ GameObject:
   - component: {fileID: 4320884229199335043}
   - component: {fileID: 376844963042529376}
   - component: {fileID: 4619242811006132682}
+  - component: {fileID: 1495638556907833119}
   m_Layer: 0
   m_Name: Car_Medium
   m_TagString: Untagged
@@ -518,13 +519,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 318095954519729755}
-  - {fileID: 7008498981763545094}
   - {fileID: 3046036476475675529}
+  RightWheels:
+  - {fileID: 7008498981763545094}
   - {fileID: 3423335322024481657}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &1495638556907833119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5374659059952383754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5967750929336832481
 GameObject:
   m_ObjectHideFlags: 0

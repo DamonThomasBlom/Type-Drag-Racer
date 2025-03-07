@@ -178,6 +178,7 @@ GameObject:
   - component: {fileID: 2384149434110533086}
   - component: {fileID: 2552093684728166304}
   - component: {fileID: 6278572153646426764}
+  - component: {fileID: 1479782138694450798}
   m_Layer: 0
   m_Name: Car_Police
   m_TagString: Untagged
@@ -270,13 +271,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe0c9b86fd9218940a0ce96c69c98571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheels:
+  LeftWheels:
   - {fileID: 3298977997231610999}
-  - {fileID: 8308481860736412378}
   - {fileID: 2003807605684320617}
+  RightWheels:
+  - {fileID: 8308481860736412378}
   - {fileID: 6223200357957634365}
   rotationSpeedMultiplier: 40
   currentSpeed: 0
+--- !u!114 &1479782138694450798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2905218763314825634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3522153148067785541
 GameObject:
   m_ObjectHideFlags: 0

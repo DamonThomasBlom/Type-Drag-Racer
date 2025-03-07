@@ -1,10 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CarWheelRotation : MonoBehaviour
 {
-    public Transform[] wheels;
+    public List<Transform> LeftWheels = new List<Transform>();
+    public List<Transform> RightWheels = new List<Transform>();
     public float rotationSpeedMultiplier = 40f;
 
     private ICarSpeed carSpeed;
@@ -23,7 +23,10 @@ public class CarWheelRotation : MonoBehaviour
 
         float rotationAmount = currentSpeed * rotationSpeedMultiplier * Time.deltaTime;
 
-        foreach (Transform wheel in wheels)
+        foreach (Transform wheel in LeftWheels)
+            wheel.Rotate(Vector3.right, rotationAmount);
+
+        foreach (Transform wheel in RightWheels)
             wheel.Rotate(Vector3.right, rotationAmount);
     }
 
