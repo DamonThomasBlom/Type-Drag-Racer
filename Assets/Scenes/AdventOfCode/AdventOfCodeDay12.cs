@@ -1,10 +1,7 @@
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static Fusion.Sockets.NetBitBuffer;
 using Debug = UnityEngine.Debug;
 
 public class AdventOfCodeDay12 : MonoBehaviour

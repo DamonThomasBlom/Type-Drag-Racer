@@ -66,6 +66,9 @@ public class CustomizeCarViewer : MonoBehaviour
         }
 
         PlayerPrefs.SetString(CarKey, carName);
+        Player.Instance.CarName = carName;
+        Player.Instance.MaterialName = currentMaterialName;
+        Player.Instance.WheelName = currentWheelName;
         PlayerPrefs.Save();
     }
 
@@ -187,6 +190,9 @@ public class CustomizeCarViewer : MonoBehaviour
         PlayerPrefs.SetString($"{carName}_{MaterialKey}", currentMaterialName);
         PlayerPrefs.SetString($"{carName}_{WheelKey}", currentWheelName);
         PlayerPrefs.Save();
+
+        Player.Instance.MaterialName = currentMaterialName;
+        Player.Instance.WheelName = currentWheelName;
     }
 
     private void LoadCustomization()

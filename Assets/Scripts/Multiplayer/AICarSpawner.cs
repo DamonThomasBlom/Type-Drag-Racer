@@ -83,14 +83,7 @@ public class AICarSpawner : NetworkBehaviour
         _carInstance = Instantiate(selectedCarPrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
         _customizeCar = _carInstance.GetComponent<CustomizeCar>();
 
-        if (!string.IsNullOrEmpty(carMaterialName) && _customizeCar != null)
-        {
-            _customizeCar.UpdateMaterials(PrefabManager.Instance.GetMaterialByName(carMaterialName));
-        }
-
-        if (!string.IsNullOrEmpty(carWheelName) && _customizeCar != null)
-        {
-            _customizeCar.UpdateWheels(PrefabManager.Instance.GetWheelScriptable(carWheelName));
-        }
+        UpdateAIMaterial();
+        UpdateAIWheels();
     }
 }

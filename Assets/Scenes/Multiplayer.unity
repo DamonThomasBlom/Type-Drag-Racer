@@ -17126,7 +17126,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.0000064140186
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -17135,12 +17135,12 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 2
-      outSlope: 2
+      value: 0.5000038
+      inSlope: 0.9361405
+      outSlope: 0.9361405
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.10833317
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -17184,17 +17184,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0.5004787
-      outSlope: 0.5004787
+      inSlope: 0.2998207
+      outSlope: 0.2998207
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.9999887
-      value: 0.500473
-      inSlope: 0.5004787
-      outSlope: 0.5004787
+      time: 0.99997437
+      value: 0.299813
+      inSlope: 0.2998207
+      outSlope: 0.2998207
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -25098,6 +25098,28 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: carDefaultWheels
+      Entry: 7
+      Data: 3|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[WheelScriptable,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 4|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  wheelScriptables: []
+  carMaterials: []
 --- !u!4 &1025146366
 Transform:
   m_ObjectHideFlags: 0
@@ -48444,9 +48466,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameMode: 0
-  carName: Small
-  playerTransform: {fileID: 0}
-  localPlayerInstance: {fileID: 0}
+  CarName: 
+  MaterialName: 
+  WheelName: 
+  PlayerTransform: {fileID: 0}
+  LocalPlayerInstance: {fileID: 0}
 --- !u!4 &2016061935
 Transform:
   m_ObjectHideFlags: 0

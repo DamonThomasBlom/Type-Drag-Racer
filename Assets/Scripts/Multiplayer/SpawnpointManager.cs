@@ -75,27 +75,27 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
     {
         // Spawn local player
         randomSpawnPoint = SerializedSpawnPoints.Instance.GetRandomPlayerSpawnPoint().position;
-        Player.Instance.playerTransform = Instantiate(localPlayerPrefab, randomSpawnPoint, Quaternion.identity).transform;
+        Player.Instance.PlayerTransform = Instantiate(localPlayerPrefab, randomSpawnPoint, Quaternion.identity).transform;
 
         SpawnRemotePlayer();
     }
 
     public void SpawnRemotePlayer()
     {
-        Transform localPlayerTransform = Player.Instance.playerTransform;
+        Transform localPlayerTransform = Player.Instance.PlayerTransform;
 
         var runner = NetworkRunner.GetRunnerForGameObject(gameObject);
         NetworkObject networkObject = runner.Spawn(remotePlayerPrefab, localPlayerTransform.position, Quaternion.identity);
         networkPlayerSpawnPoint = networkObject.GetComponent<NetworkPlayerSpawnPoint>();
-        Player.Instance.localPlayerInstance = networkObject.GetComponent<RemotePlayer>();
+        Player.Instance.LocalPlayerInstance = networkObject.GetComponent<RemotePlayer>();
         Player.Instance.PlayerName += " - " + networkObject.Id.ToString();
-        Player.Instance.localPlayerInstance.playerName = Player.Instance.PlayerName;
+        Player.Instance.LocalPlayerInstance.playerName = Player.Instance.PlayerName;
         networkObject.gameObject.name += " (Local)";
     }
 
     public void AssignSpawnPoint(Vector3 spawnPoint)
     {
-        Transform localPlayerTransform = Player.Instance.playerTransform;
+        Transform localPlayerTransform = Player.Instance.PlayerTransform;
         localPlayerTransform.position = spawnPoint;
 
         // Reset the players start position

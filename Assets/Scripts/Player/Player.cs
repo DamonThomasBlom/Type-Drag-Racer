@@ -43,10 +43,10 @@ public class Player : MonoBehaviour
 
     void AssignPlayerTransform()
     {
-        if (playerTransform != null) { return; }
+        if (PlayerTransform != null) { return; }
         var playerGo = GameObject.FindGameObjectWithTag("Player");
         if (playerGo)
-            playerTransform = playerGo.transform;
+            PlayerTransform = playerGo.transform;
         else
             Invoke(nameof(AssignPlayerTransform), 0.1f);
     }
@@ -55,9 +55,11 @@ public class Player : MonoBehaviour
 
     [ShowInInspector] public string PlayerName { get; set; }
     public RaceGameMode GameMode;
-    public string carName;
-    public Transform playerTransform;
-    public RemotePlayer localPlayerInstance;
+    public string CarName;
+    public string MaterialName;
+    public string WheelName;
+    public Transform PlayerTransform;
+    public RemotePlayer LocalPlayerInstance;
     [ShowInInspector] public GameSettings GameSettings = new GameSettings();
 }
 

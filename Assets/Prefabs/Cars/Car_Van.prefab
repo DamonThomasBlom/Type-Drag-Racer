@@ -928,6 +928,7 @@ GameObject:
   - component: {fileID: 579619524436632324}
   - component: {fileID: 7054200152467688595}
   - component: {fileID: 5025380087418778307}
+  - component: {fileID: 654738347392984173}
   m_Layer: 0
   m_Name: Car_Van
   m_TagString: Untagged
@@ -948,6 +949,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1341912975293390685}
+  - {fileID: 2518617206301032264}
   - {fileID: 8169985562772174718}
   - {fileID: 743834441806200746}
   - {fileID: 8160422399062934038}
@@ -1041,3 +1044,180 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03995580e48c20843bac4e82eb41479b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentMaterialName: 
+  CurrentWheelName: 
+--- !u!114 &654738347392984173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7007576757240433713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da6c3279d0fecd0479a436fff67124c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LeftWheelSmokeParticle: {fileID: 749351818365244199}
+  RightWheelSmokeParticle: {fileID: 4182357783354536754}
+  SmokeDuration: 5
+--- !u!1001 &1764272479300434320
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4427678377967292129}
+    m_Modifications:
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.918
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.037
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.452
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.20442848
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.97888154
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 203.592
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3756385954686638447, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_Name
+      value: TireSmokeParticle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4ca19bfb7225c774b99e1960ff0d8719, type: 3}
+--- !u!198 &749351818365244199 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1305428143393680055, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+    type: 3}
+  m_PrefabInstance: {fileID: 1764272479300434320}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1341912975293390685 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+    type: 3}
+  m_PrefabInstance: {fileID: 1764272479300434320}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2888909371535317381
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4427678377967292129}
+    m_Modifications:
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.907
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.037
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.452
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.20442848
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.97888154
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 203.592
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3756385954686638447, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+        type: 3}
+      propertyPath: m_Name
+      value: TireSmokeParticle (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4ca19bfb7225c774b99e1960ff0d8719, type: 3}
+--- !u!4 &2518617206301032264 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 784922406713730765, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+    type: 3}
+  m_PrefabInstance: {fileID: 2888909371535317381}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &4182357783354536754 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1305428143393680055, guid: 4ca19bfb7225c774b99e1960ff0d8719,
+    type: 3}
+  m_PrefabInstance: {fileID: 2888909371535317381}
+  m_PrefabAsset: {fileID: 0}

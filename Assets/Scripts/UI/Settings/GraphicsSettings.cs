@@ -19,6 +19,7 @@ public class GraphicsSettings : MonoBehaviour
 
     [Header("Audio")]
     public AudioMixer audioMixer; // Unity's Audio Mixer
+    public AudioMixerGroup group;
 
     private Resolution[] availableResolutions;
 
@@ -110,6 +111,7 @@ public class GraphicsSettings : MonoBehaviour
         playerNamesToggle.onValueChanged.AddListener(val =>
         {
             PlayerPrefs.SetInt(PlayerNamesPref, val ? 1 : 0);
+            PlayerPrefs.Save();
             Debug.Log("Player names visibility toggled: " + val);
         });
     }
@@ -121,6 +123,7 @@ public class GraphicsSettings : MonoBehaviour
         Resolution res = availableResolutions[index];
         Screen.SetResolution(res.width, res.height, Screen.fullScreen);
         PlayerPrefs.SetInt(ResolutionPref, index);
+        PlayerPrefs.Save();
     }
 
     private void ApplyFPSLimit(int index)
@@ -131,6 +134,7 @@ public class GraphicsSettings : MonoBehaviour
         int fpsLimit = fpsOptions[index];
         Application.targetFrameRate = fpsLimit;
         PlayerPrefs.SetInt(FPSPref, fpsLimit);
+        PlayerPrefs.Save();
     }
 
     #region Quality Settings
@@ -139,6 +143,7 @@ public class GraphicsSettings : MonoBehaviour
     {
         QualitySettings.SetQualityLevel(qualityIndex);
         PlayerPrefs.SetInt(QualityPref, qualityIndex);
+        PlayerPrefs.Save();
         Debug.Log("Graphics quality set to: " + QualitySettings.names[qualityIndex]);
 
         DeselectButton();
@@ -216,6 +221,7 @@ public class GraphicsSettings : MonoBehaviour
     {
         audioMixer.SetFloat(mixerParameter, Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f);
         PlayerPrefs.SetFloat(prefKey, value);
+        PlayerPrefs.Save();
     }
 
     private int GetCurrentResolutionIndex()

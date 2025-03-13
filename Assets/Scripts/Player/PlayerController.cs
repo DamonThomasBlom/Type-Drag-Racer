@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour, ICarSpeed
             Debug.Log("Race finsihed");
             _raceFinished = true;
             GameManager.Instance.OnLocalRaceFinished.Invoke();   // Invoke locally for yourself
-            Player.Instance.localPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.PlayerName, gameStatistics.wordsPerMinute);
+            Player.Instance.LocalPlayerInstance.FinishedRaceRpc(NetworkGameManager.Instance.ElapsedNetworkTime, Player.Instance.PlayerName, gameStatistics.wordsPerMinute);
             NetworkGameManager.Instance.OnGameFinished.Invoke();
         }
 
@@ -65,7 +65,11 @@ public class PlayerController : MonoBehaviour, ICarSpeed
 
     void SpawnCar()
     {
-        var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(Player.Instance.carName);
-        Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
+        var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(Player.Instance.CarName);
+        var carInstance = Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
+
+        CustomizeCar customizeCar = carInstance.GetComponent<CustomizeCar>();
+        customizeCar.UpdateMaterials(PrefabManager.Instance.GetMaterialByName(Player.Instance.MaterialName));
+        customizeCar.UpdateWheels(PrefabManager.Instance.GetWheelScriptable(Player.Instance.WheelName));
     }
 }

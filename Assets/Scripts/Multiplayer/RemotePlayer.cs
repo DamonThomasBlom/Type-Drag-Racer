@@ -11,6 +11,12 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     [Networked, OnChangedRender(nameof(SpawnCar))]
     public string carPrefabName { get; set; }
 
+    [Networked, OnChangedRender(nameof(UpdateAIMaterial)), Capacity(50)]
+    public string carMaterialName { get; set; }
+
+    [Networked, OnChangedRender(nameof(UpdateAIWheels)), Capacity(50)]
+    public string carWheelName { get; set; }
+
     [Networked, OnChangedRender(nameof(SetPlayerName))]
     public string playerName { get; set; }
 
@@ -23,10 +29,11 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
 
     public TextMeshProUGUI nameText;
 
-    private Transform localPlayerTransform;
-    private PlayerController localPlayerController;
-    private GameObject carInstance;
-    private AudioSource carAudio;
+    private Transform _localPlayerTransform;
+    private PlayerController _localPlayerController;
+    private GameObject _carInstance;
+    private CustomizeCar _customizeCar;
+    private AudioSource _carAudio;
 
     public override void Spawned()
     {
@@ -34,13 +41,15 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
         if (isLocalPlayer)
         {
             playerName = Player.Instance.PlayerName;
-            carPrefabName = Player.Instance.carName;
-            localPlayerTransform = Player.Instance.playerTransform;
-            localPlayerController = localPlayerTransform.GetComponent<PlayerController>();
+            carPrefabName = Player.Instance.CarName;
+            carMaterialName = Player.Instance.MaterialName;
+            carWheelName = Player.Instance.WheelName;
+            _localPlayerTransform = Player.Instance.PlayerTransform;
+            _localPlayerController = _localPlayerTransform.GetComponent<PlayerController>();
             carSpawnPoint.gameObject.SetActive(false);
-            carAudio = GetComponent<AudioSource>();
+            _carAudio = GetComponent<AudioSource>();
 
-            carAudio.enabled = false;
+            _carAudio.enabled = false;
             if (nameText != null)
                 nameText.transform.parent.gameObject.SetActive(false);
         }
@@ -55,7 +64,7 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     {
         base.FixedUpdateNetwork();
 
-        if (isLocalPlayer && localPlayerTransform)
+        if (isLocalPlayer && _localPlayerTransform)
         {
             ApplyLocalData();
         }
@@ -64,10 +73,30 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     private void SpawnCar()
     {
         if (string.IsNullOrEmpty(carPrefabName)) { return; }
-        if (carInstance != null) { return; }
+        if (_carInstance != null) { return; }
 
         var selectedCarPrefab = PrefabManager.Instance.GetCarPrefab(carPrefabName);
-        carInstance = Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
+        _carInstance = Instantiate(selectedCarPrefab, carSpawnPoint.position, carSpawnPoint.rotation, carSpawnPoint);
+        _customizeCar = _carInstance.GetComponent<CustomizeCar>();
+
+        UpdateAIMaterial();
+        UpdateAIWheels();
+    }
+
+    void UpdateAIMaterial()
+    {
+        if (!string.IsNullOrEmpty(carMaterialName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateMaterials(PrefabManager.Instance.GetMaterialByName(carMaterialName));
+        }
+    }
+
+    void UpdateAIWheels()
+    {
+        if (!string.IsNullOrEmpty(carWheelName) && _customizeCar != null)
+        {
+            _customizeCar.UpdateWheels(PrefabManager.Instance.GetWheelScriptable(carWheelName));
+        }
     }
 
     private void SetPlayerName()
@@ -83,9 +112,9 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
 
     protected virtual void ApplyLocalData()
     {
-        transform.position = localPlayerTransform.position;
-        stats = localPlayerController.gameStatistics;
-        speed = localPlayerController.speed;
+        transform.position = _localPlayerTransform.position;
+        stats = _localPlayerController.gameStatistics;
+        speed = _localPlayerController.speed;
         networkedSpeed = speed;
     }
 

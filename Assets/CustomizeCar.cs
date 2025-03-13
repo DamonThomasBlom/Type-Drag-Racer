@@ -19,6 +19,8 @@ public class CustomizeCar : MonoBehaviour
     [Button]
     public void UpdateMaterials(Material mat)
     {
+        if (_carMeshRenderer == null) { return; }
+
         _carMeshRenderer.material = mat;
         CurrentMaterialName = mat.name;
     }
