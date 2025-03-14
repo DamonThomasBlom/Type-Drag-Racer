@@ -36,8 +36,18 @@ public class LoginManager : MonoBehaviour
         RegBackBtn.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
         BackToLoginBtn.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
 
+        RegisterBtn.onClick.AddListener(RegisterUser);
+
         // Load login panel
         TogglePanel(LoginPanel, true);
+    }
+
+    void RegisterUser()
+    {
+        DatabaseManager.Instance.RegisterUser(RegUsernameInput.text, RegEmailInput.text, RegPasswordInput.text, (callback) =>
+        {
+            Debug.Log($"Register Success: {callback.IsSuccess}  Message: {callback.Message}");
+        });
     }
 
     void CloseAllPanels(Action callback)

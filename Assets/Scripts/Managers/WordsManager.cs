@@ -96,7 +96,7 @@ public class WordsManager : MonoBehaviour
             }
             catch(JsonException e)
             {
-                Debug.LogError("Json parse exception");
+                Debug.LogError("Json parse exception - " + e.Message);
             }
         }
         else
