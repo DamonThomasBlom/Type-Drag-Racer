@@ -51,7 +51,7 @@ public class DatabaseManager : MonoBehaviour
 
                     RegisterSuccessResponse userData = JsonConvert.DeserializeObject<RegisterSuccessResponse>(res.DataAsText);
                     // TODO: Send verification email here
-
+                    VerifyEmail(userData.Email, (callback) => { });
                 }
                 else // Unsuccessful registration
                 {
@@ -95,15 +95,52 @@ public class DatabaseManager : MonoBehaviour
         request.Send();
     }
 
-    private void OnRegisterFinished(HTTPRequest request, HTTPResponse response, Action<SimpleServerResponse> callback)
+    [Button]
+    public void VerifyEmail(string email, Action<SimpleServerResponse> callback)
     {
-        if (request.State == HTTPRequestStates.Finished)
+        HTTPRequest request = new HTTPRequest(new Uri($"{BASE_URL}users/request-verification"), HTTPMethods.Post, (req, res) =>
         {
-            //if (response.IsSuccess)
-            //{
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull registration
+                if (res.IsSuccess)
+                {
+                    callbackResponse.IsSuccess = true;
+                    callback.Invoke(callbackResponse);
 
-            //}
-        }
+                    ToastManager.Instance.ShowToast("Email verification sent.");
+                    Debug.Log("Email verifcation sent to - " + email);
+                }
+                else // Unsuccessful verifcation
+                {
+                    RegisterErrorResponse errorResponse = JsonConvert.DeserializeObject<RegisterErrorResponse>(res.DataAsText);
+
+                    callbackResponse.IsSuccess = false;
+                    callbackResponse.Message = errorResponse.Data.Keys.First() + " - " + errorResponse.Data[errorResponse.Data.Keys.First()].Message;
+
+                    callback.Invoke(callbackResponse);
+                    Debug.LogError("Email verification error - " + callbackResponse.Message);
+                }
+            }
+            else
+            {
+                callbackResponse.IsSuccess = false;
+                callbackResponse.Message = "Register error, check your internet connection!";
+                callback.Invoke(callbackResponse);
+            }
+        });
+
+        object jsonBody = new
+        {
+            email = email
+        };
+
+        request.SetHeader("Content-Type", "application/json");
+        request.RawData = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonBody));
+
+        request.Send();
     }
 
     private void OnRequestFinished(HTTPRequest req, HTTPResponse resp)

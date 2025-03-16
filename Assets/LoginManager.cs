@@ -44,9 +44,27 @@ public class LoginManager : MonoBehaviour
 
     void RegisterUser()
     {
+        if (string.IsNullOrEmpty(RegUsernameInput.text))
+        {
+            ToastManager.Instance.ShowToast("Username can not be blank.");
+            return;
+        }
+
+        ShowLoadingPanel(true);
         DatabaseManager.Instance.RegisterUser(RegUsernameInput.text, RegEmailInput.text, RegPasswordInput.text, (callback) =>
         {
             Debug.Log($"Register Success: {callback.IsSuccess}  Message: {callback.Message}");
+            ShowLoadingPanel(false);
+
+            if (callback.IsSuccess)
+            {
+                UserDetailsPanel.SetActive(false);
+                RegistrationSentPanel.SetActive(true);
+            }
+            else
+            {
+                ToastManager.Instance.ShowToast(callback.Message);
+            }
         });
     }
 
@@ -81,9 +99,12 @@ public class LoginManager : MonoBehaviour
 
         // If we are going back to login panel clean up registration UI
         if (panel == LoginPanel)
-        {
             CleanUpRegistration();
-        }
+    }
+
+    void ShowLoadingPanel(bool enabled)
+    {
+        LoadingOverlay.gameObject.SetActive(enabled);
     }
 
     private void CleanUpRegistration()
@@ -91,5 +112,8 @@ public class LoginManager : MonoBehaviour
         RegUsernameInput.text = "";
         RegEmailInput.text = "";
         RegPasswordInput.text = "";
+
+        UserDetailsPanel.SetActive(true);
+        RegistrationSentPanel.SetActive(false);
     }
 }
