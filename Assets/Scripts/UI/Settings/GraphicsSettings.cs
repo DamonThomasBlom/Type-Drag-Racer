@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.Audio;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
+using System.Collections.Generic;
 
 public class GraphicsSettings : MonoBehaviour
 {
@@ -21,7 +23,7 @@ public class GraphicsSettings : MonoBehaviour
     public AudioMixer audioMixer; // Unity's Audio Mixer
     public AudioMixerGroup group;
 
-    private Resolution[] availableResolutions;
+    private List<Resolution> availableResolutions;
 
     private const string ResolutionPref = "Graphics_Resolution";
     private const string FPSPref = "Graphics_FPS";
@@ -42,10 +44,14 @@ public class GraphicsSettings : MonoBehaviour
 
     private void InitializeResolutionDropdown()
     {
-        availableResolutions = Screen.resolutions;
+        availableResolutions = Screen.resolutions
+            .Select(res => new Resolution { width = res.width, height = res.height })  // Ignore refresh rate
+            .Distinct()
+            .ToList();
+
         resolutionDropdown.ClearOptions();
 
-        var options = new System.Collections.Generic.List<string>();
+        var options = new List<string>();
         foreach (var res in availableResolutions)
             options.Add($"{res.width} x {res.height}");
 
@@ -63,7 +69,7 @@ public class GraphicsSettings : MonoBehaviour
     {
         fpsDropdown.ClearOptions();
         var fpsOptions = new[] { 30, 60, 120, 144, 165, 240, -1 }; // -1 means uncapped
-        var options = new System.Collections.Generic.List<string>();
+        var options = new List<string>();
 
         foreach (int fps in fpsOptions)
             options.Add(fps == -1 ? "Unlimited" : $"{fps} FPS");
@@ -118,7 +124,7 @@ public class GraphicsSettings : MonoBehaviour
 
     private void ApplyResolution(int index)
     {
-        if (index < 0 || index >= availableResolutions.Length) return;
+        if (index < 0 || index >= availableResolutions.Count) return;
 
         Resolution res = availableResolutions[index];
         Screen.SetResolution(res.width, res.height, Screen.fullScreen);
@@ -128,7 +134,7 @@ public class GraphicsSettings : MonoBehaviour
 
     private void ApplyFPSLimit(int index)
     {
-        int[] fpsOptions = { 30, 60, 120, 144, 240, -1 };
+        int[] fpsOptions = { 30, 60, 120, 144, 165, 240, -1 };
         if (index < 0 || index >= fpsOptions.Length) return;
 
         int fpsLimit = fpsOptions[index];
@@ -226,7 +232,7 @@ public class GraphicsSettings : MonoBehaviour
 
     private int GetCurrentResolutionIndex()
     {
-        for (int i = 0; i < availableResolutions.Length; i++)
+        for (int i = 0; i < availableResolutions.Count; i++)
         {
             if (Screen.currentResolution.width == availableResolutions[i].width &&
                 Screen.currentResolution.height == availableResolutions[i].height)

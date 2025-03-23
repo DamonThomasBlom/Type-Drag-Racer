@@ -88,7 +88,6 @@ public class SpawnpointManager : SimulationBehaviour, IPlayerJoined
         NetworkObject networkObject = runner.Spawn(remotePlayerPrefab, localPlayerTransform.position, Quaternion.identity);
         networkPlayerSpawnPoint = networkObject.GetComponent<NetworkPlayerSpawnPoint>();
         Player.Instance.LocalPlayerInstance = networkObject.GetComponent<RemotePlayer>();
-        Player.Instance.PlayerName += " - " + networkObject.Id.ToString();
         Player.Instance.LocalPlayerInstance.playerName = Player.Instance.PlayerName;
         networkObject.gameObject.name += " (Local)";
     }

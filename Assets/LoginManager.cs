@@ -1,13 +1,15 @@
-using Sirenix.OdinInspector;
+using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LoginManager : MonoBehaviour
 {
+    [Header("Canvases")]
+    public GameObject LoginCanvas;
+    public GameObject MainMenuCanvas;
+
     [Header("Pages")]
     public GameObject LoadingOverlay;
     public UISlideIn LoginPanel;
@@ -32,6 +34,8 @@ public class LoginManager : MonoBehaviour
 
     private void Awake()
     {
+        LoginBtn.onClick.AddListener(LoginUser);
+
         SignupBtn.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(SignupPanel, !SignupPanel.On)));
         RegBackBtn.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
         BackToLoginBtn.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
@@ -40,6 +44,18 @@ public class LoginManager : MonoBehaviour
 
         // Load login panel
         TogglePanel(LoginPanel, true);
+        TogglePanel(SignupPanel, false);
+
+        // Load saved credentials if any are saved
+        LoadCredentials();
+
+        // If we come back to this scene and we are already logged in go to next page
+        if (!string.IsNullOrEmpty(Player.Instance.Token))
+        {
+            ShowLoadingPanel(false);
+            MainMenuCanvas.SetActive(true);
+            LoginCanvas.SetActive(false);
+        }
     }
 
     void RegisterUser()
@@ -66,6 +82,70 @@ public class LoginManager : MonoBehaviour
                 ToastManager.Instance.ShowToast(callback.Message);
             }
         });
+    }
+
+    void LoginUser()
+    {
+        if (string.IsNullOrEmpty(EmailInput.text))
+        {
+            ToastManager.Instance.ShowToast("Email can not be blank.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(PasswordInput.text))
+        {
+            ToastManager.Instance.ShowToast("Password can not be blank.");
+            return;
+        }
+
+        ShowLoadingPanel(true);
+        DatabaseManager.Instance.Login(EmailInput.text, PasswordInput.text, (callback) =>
+        {
+            Debug.Log($"Login Success: {callback.IsSuccess}  Message: {callback.Message}");
+
+            if (callback.IsSuccess)
+            {
+                SaveCredentials();
+                DelayedActionUtility.Instance.PerformActionWithDelay(1f, () =>
+                {
+                    ShowLoadingPanel(false);
+                    MainMenuCanvas.SetActive(true);
+                    LoginCanvas.SetActive(false);
+                });
+            }
+            else
+            {
+                ShowLoadingPanel(false);
+                ToastManager.Instance.ShowToast(callback.Message);
+            }
+        });
+    }
+
+    void SaveCredentials()
+    {
+        if (RememberMeToggle.isOn)
+        {
+            PlayerPrefs.SetString("SavedEmail", EmailInput.text);
+            PlayerPrefs.SetString("SavedPassword", PasswordInput.text);
+            PlayerPrefs.SetInt("RememberMe", 1);
+        }
+        else
+        {
+            PlayerPrefs.DeleteKey("SavedEmail");
+            PlayerPrefs.DeleteKey("SavedPassword");
+            PlayerPrefs.SetInt("RememberMe", 0);
+        }
+        PlayerPrefs.Save();
+    }
+
+    void LoadCredentials()
+    {
+        if (PlayerPrefs.GetInt("RememberMe", 0) == 1)
+        {
+            EmailInput.text = PlayerPrefs.GetString("SavedEmail", "");
+            PasswordInput.text = PlayerPrefs.GetString("SavedPassword", "");
+            RememberMeToggle.isOn = true;
+        }
     }
 
     void CloseAllPanels(Action callback)

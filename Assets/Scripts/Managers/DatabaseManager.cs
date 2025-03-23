@@ -8,6 +8,7 @@ using Sirenix.OdinInspector;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
 
 public class DatabaseManager : MonoBehaviour
 {
@@ -32,8 +33,6 @@ public class DatabaseManager : MonoBehaviour
 
     private const string BASE_URL = "http://127.0.0.1:8090/api/collections/";
 
-    //string jsonData = $"{{\"identity\": \"{email}\", \"password\": \"{password}\"}}";
-
     [Button]
     public void RegisterUser(string username, string email, string password, Action<SimpleServerResponse> callback)
     {
@@ -49,8 +48,9 @@ public class DatabaseManager : MonoBehaviour
                     callbackResponse.IsSuccess = true;
                     callback.Invoke(callbackResponse);
 
-                    RegisterSuccessResponse userData = JsonConvert.DeserializeObject<RegisterSuccessResponse>(res.DataAsText);
-                    // TODO: Send verification email here
+                    UserData userData = JsonConvert.DeserializeObject<UserData>(res.DataAsText);
+
+                    //Send verification email here
                     VerifyEmail(userData.Email, (callback) => { });
                 }
                 else // Unsuccessful registration
@@ -143,56 +143,285 @@ public class DatabaseManager : MonoBehaviour
         request.Send();
     }
 
-    private void OnRequestFinished(HTTPRequest req, HTTPResponse resp)
+    [Button]
+    public void Login(string email, string password, Action<SimpleServerResponse> callback)
     {
-        switch (req.State)
+        HTTPRequest request = new HTTPRequest(new Uri($"{BASE_URL}users/auth-with-password"), HTTPMethods.Post, (req, res) =>
         {
-            // The request finished without any problem.
-            case HTTPRequestStates.Finished:
-                if (resp.IsSuccess)
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
                 {
-                    // Everything went as expected!
-                    Debug.LogFormat("{0} \n<color=green>response:</color> {1} \n<color=green>Absolute URL:</color> {2} ", 
-                        req.GetFirstHeaderValue("curEvent"), 
-                        resp.DataAsText, 
-                        req.Uri.AbsoluteUri);
+                    LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(res.DataAsText);
+
+                    // Assign all user data here
+                    Player.Instance.PlayerData = loginResponse.UserData;
+                    Player.Instance.Token = loginResponse.Token;
+
+                    callbackResponse.IsSuccess = true;
+                    callback.Invoke(callbackResponse);
+                }
+                else // Unsuccessful login
+                {
+                    callbackResponse.IsSuccess = false;
+                    callbackResponse.Message = "Failed to authenticate.";
+
+                    callback.Invoke(callbackResponse);
+                }
+            }
+            else
+            {
+                callbackResponse.IsSuccess = false;
+                callbackResponse.Message = "Server sent an error!";
+                callback.Invoke(callbackResponse);
+            }
+
+        });
+
+        object jsonBody = new
+        {
+            password = password,
+            identity = email,
+        };
+
+        request.SetHeader("Content-Type", "application/json");
+        request.RawData = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonBody));
+
+        request.Send();
+    }
+
+    [Button]
+    public void PostLeaderboardStat(object jsonBody)
+    {
+        HTTPRequest request = new HTTPRequest(new Uri($"{BASE_URL}leaderboard/records"), HTTPMethods.Post, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                    Debug.Log("Posted leaderboard stat successfully!");
+                else // Unsuccessful login
+                    Debug.LogError("Error posting leaderboard stat!");
+            }
+            else
+                Debug.LogError("Error posting leaderboard stat!");
+        });
+
+        request.SetHeader("Content-Type", "application/json");
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.RawData = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonBody));
+
+        request.Send();
+    }
+
+    //string Top10Leaderboard = $"{BASE_URL}leaderboard/records?sort=-wpm&perPage=10&page=1";
+    //string Top10ByGameMode = $"{BASE_URL}leaderboard/records?sort=-wpm&perPage=10&page=1&filter=(race_distance='{gamemode}')";
+    //string PlayerRankGlobal = $"{BASE_URL}leaderboard/records?filter=(wpm>'{userWPM}')&perPage=1";  // Use totalItems for rank
+    //string PlayerRankByGameMode = $"{BASE_URL}leaderboard/records?filter=(wpm>'{userWPM}' %26%26 race_distance='{gameMode}')&perPage=1"; // Not working yet
+    //string PlayerBestWPM = $"{BASE_URL}leaderboard/records?filter=(username='{Player.Instance.PlayerName}')&sort=-wpm&perPage=1";
+    //string PlayerBestWPMForRaceDistance = $"{BASE_URL}leaderboard/records?filter=username='{Player.Instance.PlayerName}' %26%26 race_distance='{raceDistance}'&sort=-wpm&perPage=1"; // Not working yet
+
+    public void GetTop10LeaderBoard(Action<LeaderBoardResponse> callback)
+    {
+        string urlTop10Leaderboard = $"{BASE_URL}leaderboard/records?sort=-wpm&perPage=10&page=1";
+
+        HTTPRequest request = new HTTPRequest(new Uri(urlTop10Leaderboard), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log("Got top 10 leaderboard stat successfully!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
                 }
                 else
                 {
-                    Debug.LogWarning(string.Format("Request finished Successfully, but the server sent an error. Status Code: {0}-{1} Message: {2}",
-                                                    resp.StatusCode,
-                                                    resp.Message,
-                                                    resp.DataAsText));
+                    Debug.LogError("Error getting top 10 leaderboard!");
+                    callback.Invoke(null);
                 }
-                break;
+            }
+            else
+            {
+                Debug.LogError("Error getting top 10 leaderboard!");
+                callback.Invoke(null);
+            }
+        });
 
-            // The request finished with an unexpected error. The request's Exception property may contain more info about the error.
-            case HTTPRequestStates.Error:
-                Debug.Log(req.Uri.AbsoluteUri + " - Error");
-                Debug.LogError("Request Finished with Error! " + (req.Exception != null ? (req.Exception.Message + "\n" + req.Exception.StackTrace) : "No Exception"));
-                break;
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
+    }
 
-            // The request aborted, initiated by the user.
-            case HTTPRequestStates.Aborted:
-                Debug.Log(req.Uri.AbsoluteUri + " - Abort");
-                Debug.LogError("Request Aborted!");
+    public void GetTop10LeaderBoardByRace(RaceDistance raceDistance, Action<LeaderBoardResponse> callback)
+    {
+        string urlTop10RaceDistanceLeaderboard = $"{BASE_URL}leaderboard/records?sort=-wpm&perPage=10&page=1&filter=(race_distance='{raceDistance.GetDescription()}')";
 
-                break;
+        HTTPRequest request = new HTTPRequest(new Uri(urlTop10RaceDistanceLeaderboard), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log($"Got top 10 leaderboard by race distance {raceDistance.GetDescription()} stat successfully!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
+                }
+                else
+                {
+                    Debug.LogError("Error getting top 10 leaderboard!");
+                    callback.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error getting top 10 leaderboard!");
+                callback.Invoke(null);
+            }
+        });
 
-            // Connecting to the server is timed out.
-            case HTTPRequestStates.ConnectionTimedOut:
-                Debug.Log(req.Uri.AbsoluteUri + " - Connection Timed Out");
-                Debug.LogError("Connection Timed Out!");
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
+    }
 
-                break;
+    public void GetPlayerGlobalRank(int playerWpm, Action<LeaderBoardResponse> callback)
+    {
+        string urlPlayerGlobalRank = $"{BASE_URL}leaderboard/records?filter=(wpm>='{playerWpm}')&perPage=1";
 
-            // The request didn't finished in the given time.
-            case HTTPRequestStates.TimedOut:
-                Debug.Log(req.Uri.AbsoluteUri + " - Timed Out");
-                Debug.LogError("Processing the request Timed Out!");
+        HTTPRequest request = new HTTPRequest(new Uri(urlPlayerGlobalRank), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log($"Got players global rank successfully!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
+                }
+                else
+                {
+                    Debug.LogError("Error getting player global rank!");
+                    callback.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error getting player global rank!");
+                callback.Invoke(null);
+            }
+        });
 
-                break;
-        }
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
+    }
+
+    public void GetPlayerRankForRace(int playerWpm, RaceDistance raceDistance, Action<LeaderBoardResponse> callback)
+    {
+        string urlPlayerRankRace = $"{BASE_URL}leaderboard/records?filter=(wpm>='{playerWpm}' %26%26 race_distance='{raceDistance.GetDescription()}')&perPage=1";
+
+        HTTPRequest request = new HTTPRequest(new Uri(urlPlayerRankRace), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log($"Got players global rank successfully!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
+                }
+                else
+                {
+                    Debug.LogError("Error getting player global rank!");
+                    callback.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error getting player global rank!");
+                callback.Invoke(null);
+            }
+        });
+
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
+    }
+
+    public void GetPlayerBestWPM(Action<LeaderBoardResponse> callback)
+    {
+        string playerBestWpmUrl = $"{BASE_URL}leaderboard/records?filter=(username='{Player.Instance.PlayerName}')&sort=-wpm&perPage=1";
+
+        HTTPRequest request = new HTTPRequest(new Uri(playerBestWpmUrl), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log("Got players best WPM!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
+                }
+                else
+                {
+                    Debug.LogError("Error getting players best WPM!");
+                    callback.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error getting players best WPM!");
+                callback.Invoke(null);
+            }
+        });
+
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
+    }
+
+    public void GetPlayerBestWPMForRace(RaceDistance raceDistance, Action<LeaderBoardResponse> callback)
+    {
+        string playerBestWpmUrlForRace = $"{BASE_URL}leaderboard/records?filter=username='{Player.Instance.PlayerName}' %26%26 race_distance='{raceDistance.GetDescription()}'&sort=-wpm&perPage=1";
+
+        HTTPRequest request = new HTTPRequest(new Uri(playerBestWpmUrlForRace), HTTPMethods.Get, (req, res) =>
+        {
+            // Handle server response here
+            SimpleServerResponse callbackResponse = new();
+            if (req.State == HTTPRequestStates.Finished)
+            {
+                // Successfull login
+                if (res.IsSuccess)
+                {
+                    Debug.Log("Got players best WPM for race!");
+                    callback.Invoke(JsonConvert.DeserializeObject<LeaderBoardResponse>(res.DataAsText));
+                }
+                else
+                {
+                    Debug.LogError("Error getting players best WPM for race!");
+                    callback.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error getting players best WPM for race!");
+                callback.Invoke(null);
+            }
+        });
+
+        request.SetHeader("Authorization", $"Bearer {Player.Instance.Token}");
+        request.Send();
     }
 }
 
@@ -203,7 +432,17 @@ public class SimpleServerResponse
     public string Message { get; set; }
 }
 
-public partial class RegisterSuccessResponse
+public partial class LoginResponse
+{
+    [JsonProperty("record")]
+    public UserData UserData { get; set; }
+
+    [JsonProperty("token")]
+    public string Token { get; set; }
+}
+
+[Serializable]
+public class UserData
 {
     [JsonProperty("collectionId")]
     public string CollectionId { get; set; }
@@ -251,4 +490,55 @@ public partial class ValidationError
 
     [JsonProperty("message")]
     public string Message { get; set; }
+}
+
+public partial class LeaderBoardResponse
+{
+    [JsonProperty("items")]
+    public List<LeaderboardDatabaseItem> Items { get; set; }
+
+    [JsonProperty("page")]
+    public long Page { get; set; }
+
+    [JsonProperty("perPage")]
+    public long PerPage { get; set; }
+
+    [JsonProperty("totalItems")]
+    public long TotalItems { get; set; }
+
+    [JsonProperty("totalPages")]
+    public long TotalPages { get; set; }
+}
+
+public partial class LeaderboardDatabaseItem
+{
+    [JsonProperty("accuracy")]
+    public float Accuracy { get; set; }
+
+    [JsonProperty("collectionId")]
+    public string CollectionId { get; set; }
+
+    [JsonProperty("collectionName")]
+    public string CollectionName { get; set; }
+
+    [JsonProperty("created")]
+    public DateTimeOffset Created { get; set; }
+
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonProperty("race_distance")]
+    public string RaceDistance { get; set; }
+
+    [JsonProperty("time")]
+    public float Time { get; set; }
+
+    [JsonProperty("updated")]
+    public DateTimeOffset Updated { get; set; }
+
+    [JsonProperty("username")]
+    public string Username { get; set; }
+
+    [JsonProperty("wpm")]
+    public long Wpm { get; set; }
 }

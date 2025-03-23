@@ -110,7 +110,7 @@ public class PlayPanelUI : MonoBehaviour
 
     void LoadPlayerName()
     {
-        Player.Instance.PlayerName = PlayerPrefs.GetString(PLAYER_NAME_KEY, GenerateRandomName());
+        //Player.Instance.PlayerName = PlayerPrefs.GetString(PLAYER_NAME_KEY, GenerateRandomName());
         PlayerNameInput.text = Player.Instance.PlayerName;
 
         PlayerNameInput.onValueChanged.AddListener((value) => SavePlayerName(value));
@@ -120,7 +120,8 @@ public class PlayPanelUI : MonoBehaviour
     {
         if (string.IsNullOrEmpty(value)) { return; }
 
-        Player.Instance.PlayerName = value;
+        // TODO: Implement updating player name in database
+        //Player.Instance.PlayerName = value;
         PlayerPrefs.SetString(PLAYER_NAME_KEY, value);
         PlayerPrefs.Save();
     }

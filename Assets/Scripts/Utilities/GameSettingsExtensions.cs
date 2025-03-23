@@ -1,8 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using Unity.VisualScripting;
-using UnityEngine;
 
 public static class GameSettingsExtensions
 {
@@ -48,6 +44,19 @@ public static class GameSettingsExtensions
             case RaceDistance.KM5: return "5 km";
             case RaceDistance.KM10: return "10 km";
             default: return "Unknown Distance";
+        }
+    }
+
+    public static RaceDistance DesciptionToDistance(this string raceDistance)
+    {
+        switch (raceDistance)
+        {
+            case "500m": return RaceDistance.M500;
+            case "1 km": return RaceDistance.KM1;
+            case "2 km": return RaceDistance.KM2;
+            case "5 km": return RaceDistance.KM5;
+            case "10 km": return RaceDistance.KM10;
+            default: return RaceDistance.M500;
         }
     }
 

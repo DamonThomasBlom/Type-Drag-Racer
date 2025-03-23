@@ -204,6 +204,23 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
     public void AiFinishedRaceRpc(float time, string name, int wordsPerMinute)
     {
         Debug.Log(name + " finished race at " + time);
+        PostStatsToDatabase();
         RaceLeaderboardManager.Instance.AddEntry(new LeaderboardEntry() { FinishTime = time, Name = name, WPM = wordsPerMinute });
+    }
+
+    void PostStatsToDatabase()
+    {
+        float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
+
+        object jsonBody = new
+        {
+            race_distance = Player.Instance.GameSettings.RaceDistance.GetDescription(),
+            wpm = Stats.wordsPerMinute,
+            accuracy = Stats.accuracy,
+            time = raceFinishTime,
+            username = nameText.text
+        };
+
+        DatabaseManager.Instance.PostLeaderboardStat(jsonBody);
     }
 }

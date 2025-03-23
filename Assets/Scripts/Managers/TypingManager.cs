@@ -1,3 +1,4 @@
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Tsp;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,6 +37,8 @@ public class TypingManager : MonoBehaviour
     [HideInInspector]
     public bool gameStarted;
 
+    public bool sendLeaderboardStats = true;
+
     float gameTimeInSeconds = 0f;
 
     [SerializeField]
@@ -69,7 +72,26 @@ public class TypingManager : MonoBehaviour
         generatedWords = WordsManager.Instance.getRandomWords(targetWordCount);
 
         // On race finished store a snapshot of our live game stats
-        GameManager.Instance.OnLocalRaceFinished.AddListener(() => { FinalGameStats = LiveGameStats; });
+        GameManager.Instance.OnLocalRaceFinished.AddListener(() => 
+        { 
+            FinalGameStats = LiveGameStats;
+
+            if (sendLeaderboardStats)
+            {
+                float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
+
+                object jsonBody = new
+                {
+                    race_distance = Player.Instance.GameSettings.RaceDistance.GetDescription(),
+                    wpm = FinalGameStats.wordsPerMinute,
+                    accuracy = FinalGameStats.accuracy,
+                    time = raceFinishTime,
+                    username = Player.Instance.PlayerName
+                };
+
+                DatabaseManager.Instance.PostLeaderboardStat(jsonBody);
+            }
+        });
 
         targetString = string.Join(" ", generatedWords.ToArray());
 
@@ -261,6 +283,7 @@ public class TypingManager : MonoBehaviour
                 if (userInput.Length > 0)
                 {
                     userInput = userInput.Substring(0, userInput.Length - 1);
+                    lastIncorrectCharIndex--;
                 }
                 return;
             }
@@ -269,6 +292,7 @@ public class TypingManager : MonoBehaviour
             if (Input.inputString.Length == 1) 
             {
                 userInput += Input.inputString;
+                StatsManager.Instance.IncrementStat(PlayerStats.TOTAL_CHARACTERS_TYPED);
             }
 
             OnWordTyped();
@@ -307,6 +331,8 @@ public class TypingManager : MonoBehaviour
             }
             else
             {
+                UpdateMistakesStat(i);
+
                 char appendChar = string.IsNullOrWhiteSpace(targetString[i].ToString()) ? userInput[i] : targetString[i];
 
                 if (isIncorrectSequence)
@@ -344,6 +370,18 @@ public class TypingManager : MonoBehaviour
         // Update the display text with colored characters
         string coloredText = coloredTextBuilder.ToString();
         text.SetText(coloredText);
+    }
+
+    int lastIncorrectCharIndex = -1;
+
+    private void UpdateMistakesStat(int i)
+    {
+        // Update incorrect stat
+        if (i > lastIncorrectCharIndex)
+        {
+            StatsManager.Instance.IncrementStat(PlayerStats.TOTAL_MISTAKES_MADE);
+            lastIncorrectCharIndex = i;
+        }
     }
 
     private void UpdateColors()
