@@ -31,6 +31,7 @@ public class RaceLeaderboardManager : MonoBehaviour
     public TextMeshProUGUI FinishText;
     public Transform LeaderboardContentHolder;
     public ResultEntryUI ResultEntryPrefab;
+    public int LocalPlayerFinishPosition;
 
     int leaderBoardPosition = 1;
     float firstPlaceTime;
@@ -44,6 +45,8 @@ public class RaceLeaderboardManager : MonoBehaviour
 
         if (entry.Name == Player.Instance.PlayerName)
         {
+            LocalPlayerFinishPosition = entry.FinishPosition;
+
             // Enable and set the finishText with a message
             if (FinishText != null)
             {

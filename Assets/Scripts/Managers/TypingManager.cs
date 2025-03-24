@@ -1,5 +1,6 @@
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Tsp;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -72,31 +73,68 @@ public class TypingManager : MonoBehaviour
         generatedWords = WordsManager.Instance.getRandomWords(targetWordCount);
 
         // On race finished store a snapshot of our live game stats
-        GameManager.Instance.OnLocalRaceFinished.AddListener(() => 
-        { 
+        GameManager.Instance.OnLocalRaceFinished.AddListener(() =>
+        {
             FinalGameStats = LiveGameStats;
 
-            if (sendLeaderboardStats)
-            {
-                float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
-
-                object jsonBody = new
-                {
-                    race_distance = Player.Instance.GameSettings.RaceDistance.GetDescription(),
-                    wpm = FinalGameStats.wordsPerMinute,
-                    accuracy = FinalGameStats.accuracy,
-                    time = raceFinishTime,
-                    username = Player.Instance.PlayerName
-                };
-
-                DatabaseManager.Instance.PostLeaderboardStat(jsonBody);
-            }
+            PostLeaderboardStat();
+            Invoke(nameof(UpdatePlayerStats), 1);
         });
 
         targetString = string.Join(" ", generatedWords.ToArray());
 
         UpdateColors();
         StartCoroutine(updateTextCoroutine());
+    }
+
+    private void PostLeaderboardStat()
+    {
+        if (sendLeaderboardStats)
+        {
+            float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
+
+            object jsonBody = new
+            {
+                race_distance = Player.Instance.GameSettings.RaceDistance.GetDescription(),
+                wpm = FinalGameStats.wordsPerMinute,
+                accuracy = FinalGameStats.accuracy,
+                time = raceFinishTime,
+                username = Player.Instance.PlayerName
+            };
+
+            DatabaseManager.Instance.PostLeaderboardStat(jsonBody);
+        }
+    }
+
+    private void UpdatePlayerStats()
+    {
+        // Completed races
+        StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_RACES_COMPLETED, 1);
+
+        // Update wins/loses
+        if (RaceLeaderboardManager.Instance.LocalPlayerFinishPosition == 1)
+            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_WINS, 1);
+        else
+            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_LOSSES, 1);
+
+        // Accuracy
+        if (FinalGameStats.accuracy == 100)
+            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_PERFECT_RACES, 1);
+
+        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_ACCURACY, FinalGameStats.accuracy);
+        StatsManager.Instance.UpdateStatIfHigher(PlayerStats.BEST_ACCURACY, FinalGameStats.accuracy);
+
+        // WPM
+        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_WPM, FinalGameStats.wordsPerMinute);
+        StatsManager.Instance.UpdateStatIfHigher(PlayerStats.BEST_WPM, FinalGameStats.wordsPerMinute);
+
+        // Race Distance
+        StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_DISTANCE_RACED, GameManager.Instance.RaceDistance);
+
+        // Race time
+        float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
+        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_RACE_TIME, raceFinishTime);
+        StatsManager.Instance.UpdateStatIfLower(PlayerStats.FASTEST_RACE_TIME, raceFinishTime);
     }
 
     #endregion
@@ -292,7 +330,7 @@ public class TypingManager : MonoBehaviour
             if (Input.inputString.Length == 1) 
             {
                 userInput += Input.inputString;
-                StatsManager.Instance.IncrementStat(PlayerStats.TOTAL_CHARACTERS_TYPED);
+                StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_CHARACTERS_TYPED, Input.inputString.Length);
             }
 
             OnWordTyped();
@@ -379,7 +417,7 @@ public class TypingManager : MonoBehaviour
         // Update incorrect stat
         if (i > lastIncorrectCharIndex)
         {
-            StatsManager.Instance.IncrementStat(PlayerStats.TOTAL_MISTAKES_MADE);
+            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_MISTAKES_MADE, 1);
             lastIncorrectCharIndex = i;
         }
     }

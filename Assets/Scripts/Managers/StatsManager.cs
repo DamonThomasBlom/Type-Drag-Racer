@@ -3,7 +3,9 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 [Serializable]
 public class PlayerStats
@@ -30,6 +32,8 @@ public class PlayerStats
     public const string TOTAL_CHARACTERS_TYPED = "Total Characters Typed";
 
     [ShowInInspector] public Dictionary<string, string> Stats = new Dictionary<string, string>();
+
+    [ShowInInspector] public Queue<int> Last10RacesWPM = new Queue<int>();
 
     public PlayerStats()
     {
@@ -81,6 +85,7 @@ public class StatsManager : MonoBehaviour
         LoadStats();
     }
 
+    [Button]
     public void SaveStats()
     {
         string json = JsonConvert.SerializeObject(playerStats);
@@ -121,11 +126,11 @@ public class StatsManager : MonoBehaviour
         SaveStats();
     }
 
-    public void IncrementStat(string statName)
+    public void IncreaseStatByValue(string statName, float value)
     {
         if (playerStats.Stats.ContainsKey(statName))
         {
-            playerStats.Stats[statName] = (float.Parse(playerStats.Stats[statName]) + 1).ToString();
+            playerStats.Stats[statName] = (float.Parse(playerStats.Stats[statName]) + value).ToString();
         }
         else
         {
@@ -145,19 +150,56 @@ public class StatsManager : MonoBehaviour
         {
             Debug.LogWarning($"Stat '{statName}' does not exist.");
         }
+        SaveStats();
     }
 
     public void UpdateStatIfLower(string statName, float value)
     {
         if (playerStats.Stats.ContainsKey(statName))
         {
-            if (float.Parse(playerStats.Stats[statName]) > value)
+            float currentValue = float.Parse(playerStats.Stats[statName]);
+            if (currentValue == 0 || currentValue > value)
                 playerStats.Stats[statName] = value.ToString();
         }
         else
         {
             Debug.LogWarning($"Stat '{statName}' does not exist.");
         }
+        SaveStats();
+    }
+
+    public void UpdateAverage(string statName, float incomingValue)
+    {
+        if (playerStats.Stats.ContainsKey(statName))
+        {
+            // Calcualte average
+            float currentAverage = float.Parse(playerStats.Stats[statName]);
+            float totalRaces = float.Parse(playerStats.Stats[PlayerStats.TOTAL_RACES_COMPLETED]);
+            float total = (currentAverage * (totalRaces - 1)) + incomingValue;
+
+            playerStats.Stats[statName] = (total / totalRaces).ToString();
+        }
+        else
+        {
+            Debug.LogWarning($"Stat '{statName}' does not exist.");
+        }
+        SaveStats();
+    }
+
+    public void AddToLast10Races(int wpm)
+    {
+        if (playerStats.Last10RacesWPM.Count >= 10)
+            playerStats.Last10RacesWPM.Dequeue();
+
+        playerStats.Last10RacesWPM.Enqueue(wpm);
+        SaveStats();
+    }
+
+    [Button]
+    public void ClearStats()
+    {
+        playerStats = new PlayerStats();
+        SaveStats();
     }
 
     public string GetStat(string statName)
@@ -169,4 +211,5 @@ public class StatsManager : MonoBehaviour
         Debug.LogWarning("Stat not found: " + statName);
         return "0";
     }
+
 }
