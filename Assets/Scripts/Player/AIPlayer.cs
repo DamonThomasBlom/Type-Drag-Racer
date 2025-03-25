@@ -167,6 +167,7 @@ public class AIPlayer : NetworkBehaviour, ICarSpeed
     private void UpdateNameText()
     {
         if (nameText == null) { return; }
+        nameText.gameObject.SetActive(Player.Instance.InGameSettings.ShowPlayerNames);
 
         switch (difficultyLevel)
         {

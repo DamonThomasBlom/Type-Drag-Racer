@@ -127,6 +127,7 @@ public class TypingManager : MonoBehaviour
         // WPM
         StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_WPM, FinalGameStats.wordsPerMinute);
         StatsManager.Instance.UpdateStatIfHigher(PlayerStats.BEST_WPM, FinalGameStats.wordsPerMinute);
+        StatsManager.Instance.AddToLast10Races(FinalGameStats.wordsPerMinute);
 
         // Race Distance
         StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_DISTANCE_RACED, GameManager.Instance.RaceDistance);

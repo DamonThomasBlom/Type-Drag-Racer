@@ -18,6 +18,9 @@ public class GraphicsSettings : MonoBehaviour
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Toggle playerNamesToggle;
+    public Toggle showTypingStatsToggle;
+    public Toggle pingToggle;
+    public Toggle fpsToggle;
 
     [Header("Audio")]
     public AudioMixer audioMixer; // Unity's Audio Mixer
@@ -25,13 +28,16 @@ public class GraphicsSettings : MonoBehaviour
 
     private List<Resolution> availableResolutions;
 
-    private const string ResolutionPref = "Graphics_Resolution";
-    private const string FPSPref = "Graphics_FPS";
-    private const string QualityPref = "Graphics_Quality";
-    private const string MasterVolumePref = "Audio_MasterVolume";
-    private const string MusicVolumePref = "Audio_MusicVolume";
-    private const string SFXVolumePref = "Audio_SFXVolume";
-    private const string PlayerNamesPref = "Gameplay_ShowPlayerNames";
+    public const string ResolutionPref = "Graphics_Resolution";
+    public const string FPSPref = "Graphics_FPS";
+    public const string QualityPref = "Graphics_Quality";
+    public const string MasterVolumePref = "Audio_MasterVolume";
+    public const string MusicVolumePref = "Audio_MusicVolume";
+    public const string SFXVolumePref = "Audio_SFXVolume";
+    public const string PlayerNamesPref = "Gameplay_ShowPlayerNames";
+    public const string TypingStatsPref = "Gameplay_ShowTypingStats";
+    public const string ShowPingPref = "Gameplay_ShowPingStats";
+    public const string ShowFPSPref = "Gameplay_ShowFPSStats";
 
     private void Start()
     {
@@ -39,7 +45,10 @@ public class GraphicsSettings : MonoBehaviour
         InitializeFPSDropdown();
         InitializeGraphicsQualityButtons();
         InitializeVolumeSliders();
-        InitializePlayerNamesToggle();
+        InitializeToggle(playerNamesToggle, PlayerNamesPref);
+        InitializeToggle(showTypingStatsToggle, TypingStatsPref);
+        InitializeToggle(pingToggle, ShowPingPref);
+        InitializeToggle(fpsToggle, ShowFPSPref);
     }
 
     private void InitializeResolutionDropdown()
@@ -109,17 +118,30 @@ public class GraphicsSettings : MonoBehaviour
         sfxVolumeSlider.onValueChanged.AddListener(val => ApplyVolume(SFXVolumePref, val, "SFX"));
     }
 
-    private void InitializePlayerNamesToggle()
+    private void InitializeToggle(Toggle toggle, string playerPref)
     {
-        bool showPlayerNames = PlayerPrefs.GetInt(PlayerNamesPref, 1) == 1;
-        playerNamesToggle.isOn = showPlayerNames;
+        bool playerPrefSetting = PlayerPrefs.GetInt(playerPref, 1) == 1;
+        toggle.isOn = playerPrefSetting;
+        UpdateIngameSetting(playerPref, playerPrefSetting);
 
-        playerNamesToggle.onValueChanged.AddListener(val =>
+        toggle.onValueChanged.AddListener(val =>
         {
-            PlayerPrefs.SetInt(PlayerNamesPref, val ? 1 : 0);
+            UpdateIngameSetting(playerPref, val);
+            PlayerPrefs.SetInt(playerPref, val ? 1 : 0);
             PlayerPrefs.Save();
-            Debug.Log("Player names visibility toggled: " + val);
+            Debug.Log($"{toggle.name} toggled: " + val);
         });
+    }
+
+    void UpdateIngameSetting(string pref, bool settting)
+    {
+        switch (pref)
+        {
+            case PlayerNamesPref: Player.Instance.InGameSettings.ShowPlayerNames = settting; break;
+            case TypingStatsPref: Player.Instance.InGameSettings.ShowTypingStats = settting; break;
+            case ShowPingPref: Player.Instance.InGameSettings.ShowPing = settting; break;
+            case ShowFPSPref: Player.Instance.InGameSettings.ShowFPS = settting; break;
+        }
     }
 
     private void ApplyResolution(int index)

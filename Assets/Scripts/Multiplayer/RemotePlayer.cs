@@ -102,7 +102,10 @@ public class RemotePlayer : NetworkBehaviour, ICarSpeed
     private void SetPlayerName()
     {
         if (nameText != null)
+        {
             nameText.text = playerName;
+            nameText.gameObject.SetActive(Player.Instance.InGameSettings.ShowPlayerNames);
+        }
     }
 
     private void SetPlayerSpeed()

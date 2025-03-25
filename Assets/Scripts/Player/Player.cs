@@ -59,6 +59,7 @@ public class Player : MonoBehaviour
     public Transform PlayerTransform;
     public RemotePlayer LocalPlayerInstance;
     [ShowInInspector] public GameSettings GameSettings = new GameSettings();
+    public InGameSettings InGameSettings = new InGameSettings();
 
     [ShowInInspector] public UserData PlayerData { get; set; }
     public string Token;
@@ -73,4 +74,12 @@ public struct GameSettings
     public TypingDifficulty TypingDifficulty;
     public AIDifficulty AIDifficulty;
     public TrackEnvironment TrackEnvironment;
+}
+
+public struct InGameSettings
+{
+    public bool ShowPlayerNames { get; set; }
+    public bool ShowTypingStats { get; set; }
+    public bool ShowPing { get; set; }
+    public bool ShowFPS { get; set; }
 }

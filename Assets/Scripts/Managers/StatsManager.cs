@@ -107,6 +107,7 @@ public class StatsManager : MonoBehaviour
         }
     }
 
+    [Button]
     public void ResetStats()
     {
         playerStats = new PlayerStats();
@@ -192,13 +193,6 @@ public class StatsManager : MonoBehaviour
             playerStats.Last10RacesWPM.Dequeue();
 
         playerStats.Last10RacesWPM.Enqueue(wpm);
-        SaveStats();
-    }
-
-    [Button]
-    public void ClearStats()
-    {
-        playerStats = new PlayerStats();
         SaveStats();
     }
 
