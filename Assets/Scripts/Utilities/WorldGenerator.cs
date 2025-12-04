@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,21 +7,24 @@ public class WorldGenerator : MonoBehaviour
     [Space(10)]
     public int playerCount = 2;
 
-    [Header("Settings")]
+    [Header("Road Settings")]
     public bool InitOnStart = true;
-    public bool disableBuildings;
     [Tooltip("Max pooled roads")]
     public int maxRoadChunks = 10;
-    [Tooltip("Max pooled buildings")]
-    public int maxBuildings = 20;
-    [Tooltip("Building spawn distance from player")]
-    public float buildingSpawnDistance = 100;
-    [Tooltip("Building despawn distance")]
-    public float buldingDespawnDistance = 10;
     [Tooltip("Road offset distance")]
     public float roadMeasurementSize = 5;
     [Tooltip("When should we start pooling")]
     public float startPoolingRoadDistance = 20;
+
+    [Header("World Chunk Settings")]
+    public bool disableWorldGeneration;
+    [Tooltip("Max pooled buildings")]
+    public int maxBlocks = 20;
+    [Tooltip("Building spawn distance from player")]
+    public float blockSpawnDistance = 100;
+    [Tooltip("Building despawn distance")]
+    public float blockDespawnDistance = 10;
+    public List<WorldBlockDefinition> worldBlocks = new List<WorldBlockDefinition>();
 
     [Space(10f)]
     public Transform player;
@@ -31,12 +33,12 @@ public class WorldGenerator : MonoBehaviour
     public PrefabReferences prefabReferences;
 
     private List<GameObject> roadChunks = new List<GameObject>();
-    // Key: Prefab  Value: Size
-    [ShowInInspector]
-    private List<KeyValuePair<GameObject, float>> buidlingSizes = new List<KeyValuePair<GameObject, float>>();
+    private List<GameObject> PooledWorldBlocksLeft = new List<GameObject>();
+    private List<GameObject> PooledWorldBlocksRight = new List<GameObject>();
 
+    private const float ROAD_WIDTH = 5;
     private float previousChunkPosition;
-    private float previousBuildingPosition;
+    private float previousBlockPosition;
 
     private void Start()
     {
@@ -56,14 +58,14 @@ public class WorldGenerator : MonoBehaviour
         }
 
         SetupRoadChunks();
-        SetupBuilding();
+        SetupWorldBlocks();
     }
 
     private void Update()
     {
         if (player == null) { return; }
-        CheckChunks();
-        CheckBuildings();
+        CheckRoadChunks();
+        CheckWorldBlocks();
     }
 
     public void SetupFinishLine(float distance)
@@ -73,59 +75,74 @@ public class WorldGenerator : MonoBehaviour
         Instantiate(prefabReferences.GetFinishLineRoadPrefab(playerCount), OffsetZValue(distance), Quaternion.identity);
     }
 
-    private void SetupBuilding()
+    private void SetupWorldBlocks()
     {
-        if (disableBuildings) { return; }
+        if (disableWorldGeneration) return;
 
-        // Start buildings from behind the player
-        previousBuildingPosition = -100;
+        previousBlockPosition = -1000f; // start behind player
+        float blockWidth = worldBlocks[0].blockWidth;
+        blockSpawnDistance += blockWidth;
+        blockDespawnDistance += blockWidth;
 
-        for (int i = 0; i < maxBuildings; i++)
+        for (int i = 0; i < maxBlocks; i++)
         {
-            int randomIndex = UnityEngine.Random.Range(0, prefabReferences.buildings.Count);
-            GameObject building = prefabReferences.buildings[randomIndex];
-
-            // Get all the Mesh Renderers attached to the object
-            MeshRenderer[] meshRenderers = building.GetComponentsInChildren<MeshRenderer>();
-
-            // Create a new Bounds object to store the combined bounds
-            Bounds combinedBounds = new Bounds();
-
-            // Iterate through each Mesh Renderer and expand the combined bounds
-            foreach (MeshRenderer renderer in meshRenderers)
+            foreach (var blockDef in worldBlocks)
             {
-                if (renderer.bounds.size != Vector3.zero)
+                // Left pooling
+                if (blockDef.spawnSide == WorldBlockDefinition.SpawnSide.Left)
                 {
-                    if (combinedBounds.size == Vector3.zero)
-                        combinedBounds = renderer.bounds;
-                    else
-                        combinedBounds.Encapsulate(renderer.bounds);
+                    var block = Instantiate(blockDef.prefab, new Vector3(0, 0, -blockWidth * maxBlocks), Quaternion.identity, transform);
+                    PooledWorldBlocksLeft.Add(block);
+                }
+
+                // Right pooling
+                if (blockDef.spawnSide == WorldBlockDefinition.SpawnSide.Right)
+                {
+                    var block = Instantiate(blockDef.prefab, new Vector3(ROAD_WIDTH * playerCount, 0, -blockWidth * maxBlocks), Quaternion.identity, transform);
+                    PooledWorldBlocksRight.Add(block);
                 }
             }
-
-            // Extract the size from the bounds
-            Vector3 size = combinedBounds.size;
-            GameObject spawnedBuilding = Instantiate(building, new Vector3(-999, 0, -999), Quaternion.identity);
-            spawnedBuilding.transform.SetParent(this.transform);
-            spawnedBuilding.SetActive(true);
-            buidlingSizes.Add(new KeyValuePair<GameObject, float>(spawnedBuilding, size.x));
         }
     }
 
-
-    int buildingLeftOffset = 7;
-
-    private void CheckBuildings()
+    private void CheckWorldBlocks()
     {
-        if (disableBuildings) { return; }
-        if (buidlingSizes.Count == 0) { return; }
-        if (previousBuildingPosition < player.position.z + buildingSpawnDistance)
+        if (disableWorldGeneration) { return; }
+        if (previousBlockPosition < player.position.z + blockSpawnDistance)
         {
-            KeyValuePair<GameObject, float> building = GetRandomBuilding();
-            float newBuildingPosition = previousBuildingPosition + building.Value;
-            building.Key.transform.position = OffsetOneValueBuilding(buildingLeftOffset, newBuildingPosition);
-            previousBuildingPosition = newBuildingPosition;
+            // When player reaches spawn threshold, generate a new line of blocks
+            if (previousBlockPosition < player.position.z + blockSpawnDistance)
+            {
+                // Move forward by the width of ONE block
+                previousBlockPosition += worldBlocks[0].blockWidth;
+
+                SpawnNextBlockLine(previousBlockPosition);
+            }
         }
+    }
+
+    private void SpawnNextBlockLine(float zPos)
+    {
+        GameObject left = GetAvailableBlock(PooledWorldBlocksLeft);
+        GameObject right = GetAvailableBlock(PooledWorldBlocksRight);
+
+        if (left != null)
+            left.transform.position = new Vector3(0, 0, zPos);
+
+        if (right != null)
+            right.transform.position = new Vector3(ROAD_WIDTH * playerCount, 0, zPos);
+    }
+
+    private GameObject GetAvailableBlock(List<GameObject> pool)
+    {
+        foreach (var block in pool)
+        {
+            // Only choose blocks that are behind player (ready for reuse)
+            if (block.transform.position.z + blockDespawnDistance < player.position.z)
+                return block;
+        }
+
+        return null;
     }
 
     private void SetupRoadChunks()
@@ -150,7 +167,7 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private void CheckChunks()
+    private void CheckRoadChunks()
     {
         if (player.position.z > previousChunkPosition + roadMeasurementSize + startPoolingRoadDistance)
         {
@@ -171,30 +188,44 @@ public class WorldGenerator : MonoBehaviour
         return nextIndex;
     }
 
-    private KeyValuePair<GameObject, float> GetRandomBuilding()
+    private GameObject GetRandomLeftBlock()
     {
-        if (buidlingSizes.Count == 0)
+        if (PooledWorldBlocksLeft.Count == 0)
         {
-            Debug.LogError("No Buildings");
-            return new KeyValuePair<GameObject, float>();
+            Debug.LogError("No Left Blocks");
+            return null;
         }
 
-        int randomIndex = UnityEngine.Random.Range(0, buidlingSizes.Count - 1);
+        int randomIndex = Random.Range(0, PooledWorldBlocksLeft.Count - 1);
 
-        // The building is not in valid range of player
-        if ((buidlingSizes[randomIndex].Key.transform.position.z + buldingDespawnDistance) > player.position.z)
-            return GetRandomBuilding();
+        // Check that our block isn't infront of our player
+        float currentBlockZValue = PooledWorldBlocksLeft[randomIndex].transform.position.z + blockDespawnDistance;
+        if (currentBlockZValue > player.position.z)
+            return GetRandomLeftBlock();
 
-        return buidlingSizes[randomIndex];
+        return PooledWorldBlocksLeft[randomIndex];
+    }
+
+    private GameObject GetRandomRightBlock()
+    {
+        if (PooledWorldBlocksRight.Count == 0)
+        {
+            Debug.LogError("No Right Blocks");
+            return null;
+        }
+
+        int randomIndex = Random.Range(0, PooledWorldBlocksRight.Count - 1);
+
+        // Check that our block isn't infront of our player
+        float currentBlockZValue = PooledWorldBlocksRight[randomIndex].transform.position.z + blockDespawnDistance;
+        if (currentBlockZValue > player.position.z)
+            return GetRandomRightBlock();
+
+        return PooledWorldBlocksRight[randomIndex];
     }
 
     private Vector3 OffsetZValue(float offset)
     {
         return new Vector3(0, 0, offset);
-    }
-
-    private Vector3 OffsetOneValueBuilding(float leftOffset, float offset)
-    {
-        return new Vector3(-leftOffset, 0, offset + 0.5f);
     }
 }
