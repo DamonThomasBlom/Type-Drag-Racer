@@ -1,6 +1,4 @@
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Tsp;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +19,6 @@ public class TypingManager : MonoBehaviour
     public string userInput;
     public TextMeshProUGUI text;
     //public TMP_InputField inputField;
-    public float cursorBlinkInterval = 0.5f;
     public float gameStartTime = 30;
 
     //[ShowInInspector]
@@ -51,16 +48,10 @@ public class TypingManager : MonoBehaviour
     [SerializeField]
     private Color remainingColor = Color.grey;
 
-    [SerializeField]
-    private Color cursorColor = Color.yellow;
-
-    private bool cursorVisible = true;
-    private float cursorBlinkTimer = 0f;
-
     string correctColorHex;
     string incorrectColorHex;
     string remainingColorHex;
-    string cursorColorHex;
+    TMPUICursor cursorMover;
 
     #region SINGLETON
 
@@ -69,6 +60,7 @@ public class TypingManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        cursorMover = FindObjectOfType<TMPUICursor>();
         calculator = GetComponent<GameStatisticsCalculator>();
         generatedWords = WordsManager.Instance.getRandomWords(targetWordCount);
 
@@ -106,37 +98,7 @@ public class TypingManager : MonoBehaviour
         }
     }
 
-    private void UpdatePlayerStats()
-    {
-        // Completed races
-        StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_RACES_COMPLETED, 1);
-
-        // Update wins/loses
-        if (RaceLeaderboardManager.Instance.LocalPlayerFinishPosition == 1)
-            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_WINS, 1);
-        else
-            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_LOSSES, 1);
-
-        // Accuracy
-        if (FinalGameStats.accuracy == 100)
-            StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_PERFECT_RACES, 1);
-
-        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_ACCURACY, FinalGameStats.accuracy);
-        StatsManager.Instance.UpdateStatIfHigher(PlayerStats.BEST_ACCURACY, FinalGameStats.accuracy);
-
-        // WPM
-        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_WPM, FinalGameStats.wordsPerMinute);
-        StatsManager.Instance.UpdateStatIfHigher(PlayerStats.BEST_WPM, FinalGameStats.wordsPerMinute);
-        StatsManager.Instance.AddToLast10Races(FinalGameStats.wordsPerMinute);
-
-        // Race Distance
-        StatsManager.Instance.IncreaseStatByValue(PlayerStats.TOTAL_DISTANCE_RACED, GameManager.Instance.RaceDistance);
-
-        // Race time
-        float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
-        StatsManager.Instance.UpdateAverage(PlayerStats.AVERAGE_RACE_TIME, raceFinishTime);
-        StatsManager.Instance.UpdateStatIfLower(PlayerStats.FASTEST_RACE_TIME, raceFinishTime);
-    }
+    private void UpdatePlayerStats() => StatsManager.Instance.UpdatePlayerStatsAfterRace(FinalGameStats);
 
     #endregion
 
@@ -234,20 +196,6 @@ public class TypingManager : MonoBehaviour
             }
             else
                 LiveGameStats = calculator.CalculateGameStatistics(userInput, targetString, gameTimeInSeconds);
-        }
-
-        if (cursorBlinkTimer == 0)
-        {
-            cursorVisible = true;
-            return;
-        }
-
-        // Update the cursor blink
-        cursorBlinkTimer += Time.deltaTime;
-        if (cursorBlinkTimer >= cursorBlinkInterval)
-        {
-            cursorVisible = !cursorVisible;
-            cursorBlinkTimer = 0f;
         }
     }
 
@@ -393,7 +341,7 @@ public class TypingManager : MonoBehaviour
         coloredTextBuilder.Append($"</color>");
 
         //coloredTextBuilder.Append("</mspace>");
-        coloredTextBuilder.Append(GetCursorCharacter());
+        //coloredTextBuilder.Append(GetCursorCharacter());
         //coloredTextBuilder.Append("<mspace=0.75em>");
 
         // Append the remaining characters from the longer string in gray color
@@ -409,6 +357,9 @@ public class TypingManager : MonoBehaviour
         // Update the display text with colored characters
         string coloredText = coloredTextBuilder.ToString();
         text.SetText(coloredText);
+
+        // Move cursor to correct character
+        cursorMover.MoveCursorToIndex(userInput.Length);
     }
 
     int lastIncorrectCharIndex = -1;
@@ -428,15 +379,5 @@ public class TypingManager : MonoBehaviour
         correctColorHex = "#" + ColorUtility.ToHtmlStringRGB(correctColor);
         incorrectColorHex = "#" + ColorUtility.ToHtmlStringRGB(incorrectColor);
         remainingColorHex = "#" + ColorUtility.ToHtmlStringRGB(remainingColor);
-        cursorColorHex = "#" + ColorUtility.ToHtmlStringRGB(cursorColor);
-    }
-
-    private string GetCursorCharacter()
-    {
-        // Customize the cursor character as needed
-        if (cursorVisible)
-            return $"<color={cursorColorHex}>|</color>";
-        else
-            return "|";
     }
 }

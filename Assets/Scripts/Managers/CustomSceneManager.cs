@@ -42,7 +42,13 @@ public class CustomSceneManager : MonoBehaviour
     private IEnumerator LoadSceneRoutine(string sceneName)
     {
         yield return StartCoroutine(FadeOut()); // Fade to black
-        yield return SceneManager.LoadSceneAsync(sceneName); // Load scene
+
+        var loadOp = SceneManager.LoadSceneAsync(sceneName);
+        yield return loadOp;
+
+        // Refresh environment lighting
+        DynamicGI.UpdateEnvironment();
+
         yield return StartCoroutine(FadeIn()); // Fade back in
     }
 

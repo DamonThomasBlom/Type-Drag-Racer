@@ -98,7 +98,8 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 52fa01aca8ddc684b8e4a78d47f3231c,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -69408,6 +69409,28 @@ PrefabInstance:
       propertyPath: m_text
       value: Sign up
       objectReference: {fileID: 0}
+    - target: {fileID: 454197638944533122, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f17e8bb3967fe14093d5fec798fffd9,
+        type: 2}
+    - target: {fileID: 454197638944533122, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_fontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 454197638944533122, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 21700449227511232, guid: 2f17e8bb3967fe14093d5fec798fffd9,
+        type: 2}
+    - target: {fileID: 454197638944533122, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1127683066496726138, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: buttonText
@@ -69601,7 +69624,7 @@ PrefabInstance:
     - target: {fileID: 8592252579122956483, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 84.91
+      value: 79.87
       objectReference: {fileID: 0}
     - target: {fileID: 8592252579122956483, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
@@ -71632,10 +71655,20 @@ PrefabInstance:
       propertyPath: m_text
       value: Login
       objectReference: {fileID: 0}
+    - target: {fileID: 454197638944533122, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1127683066496726138, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: buttonText
       value: Login
+      objectReference: {fileID: 0}
+    - target: {fileID: 1127683066496726138, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: enableText
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1127683066496726138, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
@@ -71676,6 +71709,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: Login
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569565688811517257, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7061619032083410300, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
@@ -71777,6 +71815,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7201612836346409477, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7499244082276037158, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: m_text
@@ -71812,6 +71855,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -25
       objectReference: {fileID: 0}
+    - target: {fileID: 8300049961803233260, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8592252579122956483, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -71825,7 +71873,7 @@ PrefabInstance:
     - target: {fileID: 8592252579122956483, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 62.94
+      value: 65.1
       objectReference: {fileID: 0}
     - target: {fileID: 8592252579122956483, guid: 1923fa7ad2fcdaf459255c2aa9c2cde8,
         type: 3}
@@ -72257,7 +72305,7 @@ PrefabInstance:
     - target: {fileID: 6851846083867119515, guid: ca4eda269f2e6a14a8549d2996423e67,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8844009592897213126, guid: ca4eda269f2e6a14a8549d2996423e67,
         type: 3}

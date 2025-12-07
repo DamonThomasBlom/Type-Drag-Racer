@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 522589978682148879}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalPosition: {x: 0, y: 1, z: 4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -265,8 +265,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4548243299986866822}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.2490915, y: -0.23157987, z: 0.06147293, w: 0.93837374}
-  m_LocalPosition: {x: 45.1, y: 9.83, z: -18.46}
+  m_LocalRotation: {x: 0.21749702, y: -0.2207488, z: 0.050569773, w: 0.949425}
+  m_LocalPosition: {x: 7.6, y: 9.33, z: -11.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -305,7 +305,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 500
-  field of view: 40
+  field of view: 50
   orthographic: 0
   orthographic size: 15
   m_Depth: -1
@@ -533,9 +533,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BindingMode: 1
   m_FollowOffset: {x: 7.6, y: 9.33, z: -11.46}
-  m_XDamping: 0.1
-  m_YDamping: 0.1
-  m_ZDamping: 0.1
+  m_XDamping: 0
+  m_YDamping: 0
+  m_ZDamping: 0
   m_AngularDampingMode: 0
   m_PitchDamping: 0
   m_YawDamping: 0
@@ -615,7 +615,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8386706975924750184}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.24909149, y: -0.23157988, z: 0.061472934, w: 0.93837374}
+  m_LocalRotation: {x: 0.21749702, y: -0.2207488, z: 0.050569773, w: 0.949425}
   m_LocalPosition: {x: 7.6, y: 9.33, z: -11.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -644,7 +644,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 8318133572782876653}
   m_Follow: {fileID: 6554466458842592789}
   m_Lens:
-    FieldOfView: 40
+    FieldOfView: 50
     OrthographicSize: 15
     NearClipPlane: 0.3
     FarClipPlane: 500
@@ -674,5 +674,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8a066ab954ffb4fad0c73435c99555, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPosition: {x: 2.5, y: 3.03, z: -3.01}
+  targetPosition: {x: 2, y: 3.03, z: -3}
   MaxCarSpeed: 150
+  MinFOVSpeed: 20
+  MinOffsetSpeed: 20
+  MinShakeSpeed: 50

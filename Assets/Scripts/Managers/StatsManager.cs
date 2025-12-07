@@ -206,4 +206,35 @@ public class StatsManager : MonoBehaviour
         return "0";
     }
 
+    public void UpdatePlayerStatsAfterRace(GameStatistics FinalGameStats)
+    {
+        // Completed races
+        IncreaseStatByValue(PlayerStats.TOTAL_RACES_COMPLETED, 1);
+
+        // Update wins/loses
+        if (RaceLeaderboardManager.Instance.LocalPlayerFinishPosition == 1)
+            IncreaseStatByValue(PlayerStats.TOTAL_WINS, 1);
+        else
+            IncreaseStatByValue(PlayerStats.TOTAL_LOSSES, 1);
+
+        // Accuracy
+        if (FinalGameStats.accuracy == 100)
+            IncreaseStatByValue(PlayerStats.TOTAL_PERFECT_RACES, 1);
+
+        UpdateAverage(PlayerStats.AVERAGE_ACCURACY, FinalGameStats.accuracy);
+        UpdateStatIfHigher(PlayerStats.BEST_ACCURACY, FinalGameStats.accuracy);
+
+        // WPM
+        UpdateAverage(PlayerStats.AVERAGE_WPM, FinalGameStats.wordsPerMinute);
+        UpdateStatIfHigher(PlayerStats.BEST_WPM, FinalGameStats.wordsPerMinute);
+        AddToLast10Races(FinalGameStats.wordsPerMinute);
+
+        // Race Distance
+        IncreaseStatByValue(PlayerStats.TOTAL_DISTANCE_RACED, GameManager.Instance.RaceDistance);
+
+        // Race time
+        float raceFinishTime = NetworkGameManager.Instance.ElapsedNetworkTime - NetworkGameManager.Instance.RaceStartTimeNetwork;
+        UpdateAverage(PlayerStats.AVERAGE_RACE_TIME, raceFinishTime);
+        UpdateStatIfLower(PlayerStats.FASTEST_RACE_TIME, raceFinishTime);
+    }
 }

@@ -382,6 +382,16 @@ MonoBehaviour:
   statsTxt: {fileID: 1185753011}
   speedTxt: {fileID: 378451412}
   distanceTraveledTxt: {fileID: 8147217}
+  ResultsPanel: {fileID: 0}
+  GameFinishPanel: {fileID: 0}
+  LeaderBoardBtn: {fileID: 0}
+  CloseLeaderBoardBtn: {fileID: 0}
+  PlayAgainBtn: {fileID: 0}
+  BackToMenuBtn: {fileID: 0}
+  typingStatsText: {fileID: 0}
+  fpsText: {fileID: 0}
+  pingText: {fileID: 0}
+  networkRunner: {fileID: 0}
 --- !u!1 &162779422
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,12 +608,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCount: 8
+  InitOnStart: 1
   maxRoadChunks: 50
-  maxBuildings: 30
-  buildingSpawnDistance: 150
-  buldingDespawnDistance: 10
   roadMeasurementSize: 10
   startPoolingRoadDistance: -200
+  disableWorldGeneration: 0
+  maxBlocks: 20
+  blockSpawnDistance: 100
+  blockDespawnDistance: 10
+  worldBlocks: []
   player: {fileID: 0}
   prefabReferences: {fileID: 11400000, guid: e82ec9c943f1cdf48a7367fe25ae2b71, type: 2}
 --- !u!4 &340664193
@@ -1226,9 +1239,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5f3f25dedc0dce4995d0f815902595f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  username: 
-  carName: Small
-  playerTransform: {fileID: 0}
+  GameMode: 0
+  CarName: Small
+  MaterialName: PolygonCity_Mat_01_A (Blue)
+  WheelName: 
+  PlayerTransform: {fileID: 0}
+  LocalPlayerInstance: {fileID: 0}
+  Token: 
 --- !u!4 &719049769
 Transform:
   m_ObjectHideFlags: 0
@@ -1788,6 +1805,28 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: carDefaultWheels
+      Entry: 7
+      Data: 3|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[WheelScriptable,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 4|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  wheelScriptables: []
+  carMaterials: []
 --- !u!4 &1025146366
 Transform:
   m_ObjectHideFlags: 0
@@ -2329,6 +2368,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1755010865904888625, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_Lens.FieldOfView
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 3815213501135183355, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: m_Name
@@ -2389,30 +2433,90 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.5999985
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -11.459999
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.949425
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.21749704
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.22074877
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006861516760421736, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.050569765
+      objectReference: {fileID: 0}
     - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 10.06
+      value: 7.5999985
       objectReference: {fileID: 0}
     - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.49
+      value: 9.33
       objectReference: {fileID: 0}
     - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -15.56
+      value: -11.459999
+      objectReference: {fileID: 0}
+    - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.949425
+      objectReference: {fileID: 0}
+    - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.21749704
+      objectReference: {fileID: 0}
+    - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.22074877
+      objectReference: {fileID: 0}
+    - target: {fileID: 7328670025397155659, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.050569765
       objectReference: {fileID: 0}
     - target: {fileID: 7518082262821697730, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: field of view
-      value: 60
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7613816157591466037, guid: 7e981313fe5e6384b93748f242cd252d,
         type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8318133572782876653, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8318133572782876653, guid: 7e981313fe5e6384b93748f242cd252d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

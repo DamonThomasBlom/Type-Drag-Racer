@@ -51,10 +51,10 @@ public class Player : MonoBehaviour
 
     #endregion
 
-    [ShowInInspector] public string PlayerName => PlayerData.Username;
+    [ShowInInspector] public string PlayerName => PlayerData?.Username ?? "";
     public RaceGameMode GameMode;
-    public string CarName;
-    public string MaterialName;
+    public string CarName = "Small";
+    public string MaterialName = "PolygonCity_Mat_01_A (Blue)";
     public string WheelName;
     public Transform PlayerTransform;
     public RemotePlayer LocalPlayerInstance;
