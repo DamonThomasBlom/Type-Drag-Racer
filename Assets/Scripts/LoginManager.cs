@@ -21,17 +21,22 @@ public class LoginManager : MonoBehaviour
     public TMP_InputField PasswordInput;
     public Toggle RememberMeToggle;
     public Button LoginBtn;
+    public ButtonManager LoginBm;
     public Button SignupBtn;
+    public ButtonManager SignupBm;
 
     [Header("Registration")]
     public TMP_InputField RegUsernameInput;
     public TMP_InputField RegEmailInput;
     public TMP_InputField RegPasswordInput;
     public Button RegisterBtn;
+    public ButtonManager RegisterBm;
     public GameObject UserDetailsPanel;
     public GameObject RegistrationSentPanel;
     public Button RegBackBtn;
+    public ButtonManager RegBackBm;
     public Button BackToLoginBtn;
+    public ButtonManager BackToLoginBm;
 
     private void Awake()
     {
@@ -43,12 +48,21 @@ public class LoginManager : MonoBehaviour
 
         RegisterBtn.onClick.AddListener(RegisterUser);
 
+        // New UI
+        LoginBm.onClick.AddListener(LoginUser);
+
+        SignupBm.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(SignupPanel, !SignupPanel.On)));
+        RegBackBm.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
+        BackToLoginBm.onClick.AddListener(() => CloseAllPanels(() => TogglePanel(LoginPanel, !LoginPanel.On)));
+
+        RegisterBm.onClick.AddListener(RegisterUser);
+
         // Load login panel
         TogglePanel(LoginPanel, true);
         TogglePanel(SignupPanel, false);
 
         // Load saved credentials if any are saved
-        LoadCredentials();
+        Invoke(nameof(LoadCredentials), .1f);
 
         // If we come back to this scene and we are already logged in go to next page
         if (!string.IsNullOrEmpty(Player.Instance.Token))

@@ -1,10 +1,6 @@
+using Michsky.MUIP;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 // ENUMS
 public enum RacePlayerCount { Two, Four, Six, Eight }
@@ -15,12 +11,12 @@ public enum TrackEnvironment { Classic, Desert, Forest, Urban }
 
 public class GameSettingsUI : MonoBehaviour
 {
-    [Header("Dropdowns")]
-    public TMP_Dropdown playersDropdown;
-    public TMP_Dropdown raceDistanceDropdown;
-    public TMP_Dropdown typingDifficultyDropdown;
-    public TMP_Dropdown aiDifficultyDropdown;
-    public TMP_Dropdown trackEnvironmentDropdown;
+    [Header("MUIP Dropdowns")]
+    public CustomDropdown playersDropdown;
+    public CustomDropdown raceDistanceDropdown;
+    public CustomDropdown typingDifficultyDropdown;
+    public CustomDropdown aiDifficultyDropdown;
+    public CustomDropdown trackEnvironmentDropdown;
 
     [Header("Defaults")]
     private readonly RacePlayerCount defaultPlayers = RacePlayerCount.Eight;
@@ -31,82 +27,50 @@ public class GameSettingsUI : MonoBehaviour
 
     private void Start()
     {
-        InitializeDropdowns();
+        InitializeDropdown(playersDropdown, typeof(RacePlayerCount));
+        InitializeDropdown(raceDistanceDropdown, typeof(RaceDistance));
+        InitializeDropdown(typingDifficultyDropdown, typeof(TypingDifficulty));
+        InitializeDropdown(aiDifficultyDropdown, typeof(AIDifficulty));
+        InitializeDropdown(trackEnvironmentDropdown, typeof(TrackEnvironment));
+
         LoadSettings();
         AddDropdownListeners();
 
-        typingDifficultyDropdown.interactable = false;
-        trackEnvironmentDropdown.interactable = false;
+        typingDifficultyDropdown.isInteractable = false;
+        trackEnvironmentDropdown.isInteractable = false;
     }
 
-    private void InitializeDropdowns()
+    private void InitializeDropdown(CustomDropdown dropdown, Type enumType)
     {
-        // Players dropdown
-        playersDropdown.ClearOptions();
-        playersDropdown.AddOptions(
-            new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(RacePlayerCount))
-                .Select(name => new TMP_Dropdown.OptionData(name))
-                .ToList()
-            )
-        );
+        dropdown.items.Clear();
 
-        // Race distance dropdown
-        raceDistanceDropdown.ClearOptions();
-        raceDistanceDropdown.AddOptions(
-            new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(RaceDistance))
-                .Select(name => new TMP_Dropdown.OptionData(name))
-                .ToList()
-            )
-        );
+        foreach (string name in Enum.GetNames(enumType))
+        {
+            var item = new CustomDropdown.Item
+            {
+                itemName = name,
+                OnItemSelection = new UnityEngine.Events.UnityEvent()
+            };
 
-        // Typing difficulty dropdown
-        typingDifficultyDropdown.ClearOptions();
-        typingDifficultyDropdown.AddOptions(
-            new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(TypingDifficulty))
-                .Select(name => new TMP_Dropdown.OptionData(name))
-                .ToList()
-            )
-        );
+            dropdown.items.Add(item);
+        }
 
-        // AI difficulty dropdown
-        aiDifficultyDropdown.ClearOptions();
-        aiDifficultyDropdown.AddOptions(
-            new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(AIDifficulty))
-                .Select(name => new TMP_Dropdown.OptionData(name))
-                .ToList()
-            )
-        );
-
-        // Track environment dropdown
-        trackEnvironmentDropdown.ClearOptions();
-        trackEnvironmentDropdown.AddOptions(
-            new List<TMP_Dropdown.OptionData>(
-                Enum.GetNames(typeof(TrackEnvironment))
-                .Select(name => new TMP_Dropdown.OptionData(name))
-                .ToList()
-            )
-        );
+        dropdown.SetupDropdown();
     }
 
     private void LoadSettings()
     {
-        // Load or set defaults if PlayerPrefs are missing
-        playersDropdown.value = PlayerPrefs.GetInt("NumberOfPlayers", (int)defaultPlayers);
-        raceDistanceDropdown.value = PlayerPrefs.GetInt("RaceDistance", (int)defaultRaceDistance);
-        typingDifficultyDropdown.value = PlayerPrefs.GetInt("TypingDifficulty", (int)defaultTypingDifficulty);
-        aiDifficultyDropdown.value = PlayerPrefs.GetInt("AIDifficulty", (int)defaultAIDifficulty);
-        trackEnvironmentDropdown.value = PlayerPrefs.GetInt("TrackEnvironment", (int)defaultTrackEnvironment);
+        playersDropdown.SetDropdownIndex(PlayerPrefs.GetInt("NumberOfPlayers", (int)defaultPlayers));
+        raceDistanceDropdown.SetDropdownIndex(PlayerPrefs.GetInt("RaceDistance", (int)defaultRaceDistance));
+        typingDifficultyDropdown.SetDropdownIndex(PlayerPrefs.GetInt("TypingDifficulty", (int)defaultTypingDifficulty));
+        aiDifficultyDropdown.SetDropdownIndex(PlayerPrefs.GetInt("AIDifficulty", (int)defaultAIDifficulty));
+        trackEnvironmentDropdown.SetDropdownIndex(PlayerPrefs.GetInt("TrackEnvironment", (int)defaultTrackEnvironment));
 
         ApplySettings();
     }
 
     private void AddDropdownListeners()
     {
-        // Add listeners for dropdowns and toggle
         playersDropdown.onValueChanged.AddListener((val) => SaveSetting("NumberOfPlayers", val));
         raceDistanceDropdown.onValueChanged.AddListener((val) => SaveSetting("RaceDistance", val));
         typingDifficultyDropdown.onValueChanged.AddListener((val) => SaveSetting("TypingDifficulty", val));
@@ -118,33 +82,27 @@ public class GameSettingsUI : MonoBehaviour
     {
         PlayerPrefs.SetInt(key, value);
         PlayerPrefs.Save();
-
         ApplySettings();
     }
 
     public void ApplySettings()
     {
-        // Apply all settings, e.g., in the game manager
-        RacePlayerCount playerCount = (RacePlayerCount)playersDropdown.value;
-        RaceDistance raceDistance = (RaceDistance)raceDistanceDropdown.value;
-        TypingDifficulty typingDifficulty = (TypingDifficulty)typingDifficultyDropdown.value;
-        AIDifficulty aiDifficulty = (AIDifficulty)aiDifficultyDropdown.value;
-        TrackEnvironment trackEnvironment = (TrackEnvironment)trackEnvironmentDropdown.value;
-
-        GameSettings gameSettings = new GameSettings();
-        gameSettings.PlayerCount = playerCount;
-        gameSettings.RaceDistance = raceDistance;
-        gameSettings.TypingDifficulty = typingDifficulty;
-        gameSettings.AIDifficulty = aiDifficulty;
-        gameSettings.TrackEnvironment = trackEnvironment;
+        GameSettings gameSettings = new GameSettings
+        {
+            PlayerCount = (RacePlayerCount)playersDropdown.selectedItemIndex,
+            RaceDistance = (RaceDistance)raceDistanceDropdown.selectedItemIndex,
+            TypingDifficulty = (TypingDifficulty)typingDifficultyDropdown.selectedItemIndex,
+            AIDifficulty = (AIDifficulty)aiDifficultyDropdown.selectedItemIndex,
+            TrackEnvironment = (TrackEnvironment)trackEnvironmentDropdown.selectedItemIndex
+        };
 
         Player.Instance.GameSettings = gameSettings;
 
         Debug.Log($"Settings Applied:\n" +
-          $"Players: {playerCount.ToPlayerString()}\n" +
-          $"Race Distance: {raceDistance.ToString()}\n" +
-          $"Typing Difficulty: {typingDifficulty.ToString()}\n" +
-          $"AI Difficulty: {aiDifficulty.ToString()}\n" +
-          $"Track Environment: {trackEnvironment.ToString()}");
+          $"Players: {gameSettings.PlayerCount}\n" +
+          $"Race Distance: {gameSettings.RaceDistance}\n" +
+          $"Typing Difficulty: {gameSettings.TypingDifficulty}\n" +
+          $"AI Difficulty: {gameSettings.AIDifficulty}\n" +
+          $"Track Environment: {gameSettings.TrackEnvironment}");
     }
 }

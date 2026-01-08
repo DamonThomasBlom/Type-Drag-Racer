@@ -1,15 +1,17 @@
+using Michsky.MUIP;
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour
 {
-    public Button PlayBtn;
-    public Button CustomizeBtn;
-    public Button StatsBtn;
-    public Button LeaderboardBtn;
-    public Button SettingsBtn;
-    public Button ExitBtn;
+    public ButtonManager PlayBtn;
+    public ButtonManager CustomizeBtn;
+    public ButtonManager StatsBtn;
+    public ButtonManager LeaderboardBtn;
+    public ButtonManager SettingsBtn;
+    public ButtonManager ExitBtn;
 
     public UISlideIn PlayPanel;
     public UISlideIn CustomizePanel;

@@ -1,3 +1,4 @@
+using Michsky.MUIP;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,14 +13,14 @@ public class PlayPanelUI : MonoBehaviour
     public TMP_InputField PlayerNameInput;
 
     [Header("Play Panel")]
-    public Button QuickPlayBtn;
-    public Button SinglePlayerBtn;
-    public Button MultiplayerBtn;
-    public Button PracticeBtn;
+    public ButtonManager QuickPlayBtn;
+    public ButtonManager SinglePlayerBtn;
+    public ButtonManager MultiplayerBtn;
+    public ButtonManager PracticeBtn;
 
     [Header("Game Settings Panel")]
-    public Button BackBtn;
-    public Button RaceBtn;
+    public ButtonManager BackBtn;
+    public ButtonManager RaceBtn;
 
     private void Start()
     {
