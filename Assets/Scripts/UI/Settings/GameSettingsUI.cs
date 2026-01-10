@@ -1,6 +1,7 @@
 using Michsky.MUIP;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 // ENUMS
 public enum RacePlayerCount { Two, Four, Six, Eight }
@@ -49,7 +50,7 @@ public class GameSettingsUI : MonoBehaviour
             var item = new CustomDropdown.Item
             {
                 itemName = name,
-                OnItemSelection = new UnityEngine.Events.UnityEvent()
+                OnItemSelection = new UnityEvent()
             };
 
             dropdown.items.Add(item);

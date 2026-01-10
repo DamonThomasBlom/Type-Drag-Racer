@@ -13,6 +13,9 @@ public class LeaderboardEntryUI : MonoBehaviour
     public Color Bronze;
     public Color Normal;
 
+    public Color Top3TextColour;
+    public Color RestTextColour;
+
     [Header("UI References")]
     public Image RankImage;
     public TextMeshProUGUI RankTxt;
@@ -29,6 +32,11 @@ public class LeaderboardEntryUI : MonoBehaviour
         RankTxt.text = rank.ToString();
         UsernameTxt.text = username;
         DistanceTxt.text = distance;
+
+        if (rank <= 3)
+            RankTxt.color = Top3TextColour;
+        else
+            RankTxt.color = RestTextColour;
         
         //AccuracyTxt.text = $"{accuracy:F1}%"; // Format accuracy to 2 decimal places
         AccuracyTxt.text = $"{Math.Round(accuracy, 1)}%"; // Format accuracy to 2 decimal places

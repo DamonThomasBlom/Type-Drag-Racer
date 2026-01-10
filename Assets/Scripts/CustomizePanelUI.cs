@@ -1,3 +1,4 @@
+using Michsky.MUIP;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,24 +6,24 @@ using UnityEngine.UI;
 public class CustomizePanelUI : MonoBehaviour
 {
     [FoldoutGroup("Car Selection")]
-    public Button nextCarButton;
+    public ButtonManager nextCarButton;
     [FoldoutGroup("Car Selection")]
-    public Button previousCarButton;
+    public ButtonManager previousCarButton;
 
     [FoldoutGroup("Material Selection")]
-    public Button nextMaterialButton;
+    public ButtonManager nextMaterialButton;
     [FoldoutGroup("Material Selection")]
-    public Button previousMaterialButton;
+    public ButtonManager previousMaterialButton;
 
     [FoldoutGroup("Wheel Selection")]
-    public Button nextWheelButton;
+    public ButtonManager nextWheelButton;
     [FoldoutGroup("Wheel Selection")]
-    public Button previousWheelButton;
+    public ButtonManager previousWheelButton;
 
     [FoldoutGroup("Actions")]
-    public Button randomizeButton;
+    public ButtonManager randomizeButton;
     [FoldoutGroup("Actions")]
-    public Button resetButton;
+    public ButtonManager resetButton;
 
     private CustomizeCarViewer carViewer;
 

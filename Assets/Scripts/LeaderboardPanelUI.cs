@@ -3,11 +3,14 @@ using System;
 using TMPro;
 using UnityEngine;
 using System.Linq;
+using Michsky.MUIP;
+using UnityEngine.Events;
 
 public class LeaderboardPanelUI : MonoBehaviour
 {
     public Transform LeaderBoardHolder;
-    public TMP_Dropdown RaceDistanceDropdown;
+    //public TMP_Dropdown RaceDistanceDropdown;
+    public CustomDropdown RaceDistanceDropdown;
     public LeaderboardEntryUI LeaderboardEntry;
 
     UISlideIn _uiSlideIn;
@@ -15,38 +18,65 @@ public class LeaderboardPanelUI : MonoBehaviour
     void Start()
     {
         _uiSlideIn = GetComponent<UISlideIn>();
-        InitializeDropdowns();
+        //InitializeDropdowns();
+        InitializeDropdown(RaceDistanceDropdown, typeof(RaceDistance));
         FetchLeaderboard();
     }
 
-    void InitializeDropdowns()
+    //void InitializeDropdowns()
+    //{
+    //    RaceDistanceDropdown.ClearOptions();
+
+    //    // Create a new list with "Any" as the first option
+    //    List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>
+    //    {
+    //        new TMP_Dropdown.OptionData("Any")
+    //    };
+
+    //    // Add enum values to the list
+    //    options.AddRange(
+    //        Enum.GetNames(typeof(RaceDistance))
+    //        .Select(name => new TMP_Dropdown.OptionData(name))
+    //    );
+
+    //    RaceDistanceDropdown.AddOptions(options);
+    //    RaceDistanceDropdown.value = 0;
+    //    RaceDistanceDropdown.RefreshShownValue();
+
+    //    RaceDistanceDropdown.onValueChanged.AddListener(delegate { FetchLeaderboard(); });
+    //}
+
+    void InitializeDropdown(CustomDropdown dropdown, Type enumType)
     {
-        RaceDistanceDropdown.ClearOptions();
+        dropdown.items.Clear();
 
-        // Create a new list with "Any" as the first option
-        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>
+        var anyItem = new CustomDropdown.Item
         {
-            new TMP_Dropdown.OptionData("Any")
+            itemName = "Any",
+            OnItemSelection = new UnityEvent()
         };
+        dropdown.items.Add(anyItem);
 
-        // Add enum values to the list
-        options.AddRange(
-            Enum.GetNames(typeof(RaceDistance))
-            .Select(name => new TMP_Dropdown.OptionData(name))
-        );
+        foreach (string name in Enum.GetNames(enumType))
+        {
+            var item = new CustomDropdown.Item
+            {
+                itemName = name,
+                OnItemSelection = new UnityEvent()
+            };
 
-        RaceDistanceDropdown.AddOptions(options);
-        RaceDistanceDropdown.value = 0;
-        RaceDistanceDropdown.RefreshShownValue();
+            dropdown.items.Add(item);
+        }
 
-        RaceDistanceDropdown.onValueChanged.AddListener(delegate { FetchLeaderboard(); });
+        dropdown.SetupDropdown();
     }
 
     void FetchLeaderboard()
     {
         ClearLeaderboard();
 
-        string selectedRace = RaceDistanceDropdown.options[RaceDistanceDropdown.value].text;
+        string selectedRace = RaceDistanceDropdown.items[RaceDistanceDropdown.selectedItemIndex].itemName;
+        //string selectedRace = RaceDistanceDropdown.options[RaceDistanceDropdown.value].text;
 
         if (selectedRace == "Any")
         {
@@ -84,7 +114,8 @@ public class LeaderboardPanelUI : MonoBehaviour
 
     void FetchLocalPlayerRank()
     {
-        string selectedRace = RaceDistanceDropdown.options[RaceDistanceDropdown.value].text;
+        string selectedRace = RaceDistanceDropdown.items[RaceDistanceDropdown.selectedItemIndex].itemName;
+        //string selectedRace = RaceDistanceDropdown.options[RaceDistanceDropdown.value].text;
 
         if (selectedRace == "Any")
         {

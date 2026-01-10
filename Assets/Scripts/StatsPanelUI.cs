@@ -1,3 +1,4 @@
+using Michsky.MUIP;
 using System;
 using TMPro;
 using UnityEngine;
@@ -7,7 +8,7 @@ public class StatsPanelUI : MonoBehaviour
 {
     public TextMeshProUGUI LeftSideText;
     public TextMeshProUGUI RightSideText;
-    public Button ResetStatsBtn;
+    public ButtonManager ResetStatsBtn;
 
     private CustomGraphChartFeed _chartFeed;
 
