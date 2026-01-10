@@ -68,6 +68,7 @@ public class LeaderboardPanelUI : MonoBehaviour
             dropdown.items.Add(item);
         }
 
+        dropdown.onValueChanged.AddListener((value) => FetchLeaderboard());
         dropdown.SetupDropdown();
     }
 

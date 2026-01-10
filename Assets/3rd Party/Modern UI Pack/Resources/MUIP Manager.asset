@@ -24,7 +24,7 @@ MonoBehaviour:
   dropdownFont: {fileID: 11400000, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
   dropdownItemFont: {fileID: 11400000, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
   dropdownBackgroundColor: {r: 0.14117648, g: 0.14901961, b: 0.16470589, a: 255}
-  dropdownContentBackgroundColor: {r: 0.20392159, g: 0.19607845, b: 0.23137257, a: 1}
+  dropdownContentBackgroundColor: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 1}
   dropdownPrimaryColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}
   dropdownItemBackgroundColor: {r: 0.23798503, g: 0.23050906, b: 0.26415092, a: 1}
   dropdownItemPrimaryColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}
@@ -64,8 +64,8 @@ MonoBehaviour:
   scrollbarBackgroundColor: {r: 0.20392159, g: 0.19607845, b: 0.23137257, a: 1}
   sliderLabelFont: {fileID: 11400000, guid: 84dd14695854bbc43a5faa24fcf93d0d, type: 2}
   sliderThemeType: 0
-  sliderColor: {r: 1, g: 1, b: 1, a: 1}
-  sliderBackgroundColor: {r: 1, g: 1, b: 1, a: 0.09803922}
+  sliderColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}
+  sliderBackgroundColor: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 1}
   sliderLabelColor: {r: 1, g: 1, b: 1, a: 1}
   sliderPopupLabelColor: {r: 0.37254903, g: 0.40784314, b: 0.4509804, a: 1}
   sliderHandleColor: {r: 1, g: 1, b: 1, a: 1}

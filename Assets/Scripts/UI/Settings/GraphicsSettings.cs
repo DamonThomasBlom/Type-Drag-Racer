@@ -1,19 +1,29 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
-using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 using System.Collections.Generic;
+using Michsky.MUIP;
+using UnityEngine.Events;
+using System;
+using TMPro;
+
+[System.Serializable]
+public class QualityButtonGroup 
+{
+    public Image ButtonImage;
+    public TextMeshProUGUI ButtonText;
+}
 
 public class GraphicsSettings : MonoBehaviour
 {
     [Header("UI References")]
-    public TMP_Dropdown resolutionDropdown;
-    public TMP_Dropdown fpsDropdown;
-    public Button lowQualityButton;
-    public Button mediumQualityButton;
-    public Button highQualityButton;
+    public CustomDropdown resolutionDropdown;
+    public CustomDropdown fpsDropdown;
+    public ButtonManager lowQualityButton;
+    public ButtonManager mediumQualityButton;
+    public ButtonManager highQualityButton;
     public Slider masterVolumeSlider;
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
@@ -21,6 +31,13 @@ public class GraphicsSettings : MonoBehaviour
     public Toggle showTypingStatsToggle;
     public Toggle pingToggle;
     public Toggle fpsToggle;
+
+    [Header("Quality Buttons Settings")]
+    public QualityButtonGroup lowQualityButtonGroup;
+    public QualityButtonGroup mediumQualityButtonGroup;
+    public QualityButtonGroup highQualityButtonGroup;
+    public Color selectedColour;
+    public Color unselectedColour;
 
     [Header("Audio")]
     public AudioMixer audioMixer; // Unity's Audio Mixer
@@ -58,39 +75,57 @@ public class GraphicsSettings : MonoBehaviour
             .Distinct()
             .ToList();
 
-        resolutionDropdown.ClearOptions();
+        resolutionDropdown.items.Clear();
 
-        var options = new List<string>();
+        var options = new List<CustomDropdown.Item>();
         foreach (var res in availableResolutions)
-            options.Add($"{res.width} x {res.height}");
+        {
+            var item = new CustomDropdown.Item
+            {
+                itemName = $"{res.width} x {res.height}",
+                OnItemSelection = new UnityEvent()
+            };
 
-        resolutionDropdown.AddOptions(options);
+            options.Add(item);
+        }
+
+        resolutionDropdown.items.AddRange(options);
 
         int savedIndex = PlayerPrefs.GetInt(ResolutionPref, GetCurrentResolutionIndex());
-        resolutionDropdown.value = savedIndex;
-        resolutionDropdown.RefreshShownValue();
+        resolutionDropdown.selectedItemIndex = savedIndex;
 
         ApplyResolution(savedIndex);
         resolutionDropdown.onValueChanged.AddListener((val) => ApplyResolution(val));
+
+        resolutionDropdown.SetupDropdown();
     }
 
     private void InitializeFPSDropdown()
     {
-        fpsDropdown.ClearOptions();
+        fpsDropdown.items.Clear();
         var fpsOptions = new[] { 30, 60, 120, 144, 165, 240, -1 }; // -1 means uncapped
-        var options = new List<string>();
+        var options = new List<CustomDropdown.Item>();
 
         foreach (int fps in fpsOptions)
-            options.Add(fps == -1 ? "Unlimited" : $"{fps} FPS");
+        {
+            var item = new CustomDropdown.Item
+            {
+                itemName = fps == -1 ? "Unlimited" : $"{fps} FPS",
+                OnItemSelection = new UnityEvent()
+            };
 
-        fpsDropdown.AddOptions(options);
+            options.Add(item);
+        }
+
+        fpsDropdown.items.AddRange(options);
 
         int savedFPS = PlayerPrefs.GetInt(FPSPref, -1);
-        fpsDropdown.value = System.Array.IndexOf(fpsOptions, savedFPS);
-        fpsDropdown.RefreshShownValue();
+        fpsDropdown.selectedItemIndex = Array.IndexOf(fpsOptions, savedFPS);
 
-        ApplyFPSLimit(fpsDropdown.value);
+        ApplyFPSLimit(fpsDropdown.selectedItemIndex);
         fpsDropdown.onValueChanged.AddListener((val) => ApplyFPSLimit(val));
+
+        fpsDropdown.SetupDropdown();
     }
 
     private void InitializeGraphicsQualityButtons()
@@ -189,52 +224,34 @@ public class GraphicsSettings : MonoBehaviour
         switch (currentQuality)
         {
             case 0:
-                HighlightButton(lowQualityButton);
+                HighlightButton(lowQualityButtonGroup);
                 break;
             case 1:
-                HighlightButton(mediumQualityButton);
+                HighlightButton(mediumQualityButtonGroup);
                 break;
             case 2:
-                HighlightButton(highQualityButton);
+                HighlightButton(highQualityButtonGroup);
                 break;
         }
     }
 
     private void ResetButtonStyles()
     {
-        SetButtonDefaultStyle(lowQualityButton);
-        SetButtonDefaultStyle(mediumQualityButton);
-        SetButtonDefaultStyle(highQualityButton);
+        SetButtonDefaultStyle(lowQualityButtonGroup);
+        SetButtonDefaultStyle(mediumQualityButtonGroup);
+        SetButtonDefaultStyle(highQualityButtonGroup);
     }
 
-    private void HighlightButton(Button button)
+    private void HighlightButton(QualityButtonGroup button)
     {
-        // Example: Change the background color to highlight the button
-        ColorBlock colorBlock = button.colors;
-        colorBlock.normalColor = Color.green; // Highlight color
-        button.colors = colorBlock;
-
-        // Optional: Bold text
-        Text buttonText = button.GetComponentInChildren<Text>();
-        if (buttonText != null)
-        {
-            buttonText.fontStyle = FontStyle.Bold;
-        }
+        button.ButtonImage.color = selectedColour;
+        button.ButtonText.fontStyle = (FontStyles)FontStyle.Bold;
     }
 
-    private void SetButtonDefaultStyle(Button button)
+    private void SetButtonDefaultStyle(QualityButtonGroup button)
     {
-        // Reset to default background color
-        ColorBlock colorBlock = button.colors;
-        colorBlock.normalColor = Color.white; // Default color
-        button.colors = colorBlock;
-
-        // Optional: Normal text style
-        Text buttonText = button.GetComponentInChildren<Text>();
-        if (buttonText != null)
-        {
-            buttonText.fontStyle = FontStyle.Normal;
-        }
+        button.ButtonImage.color = unselectedColour;
+        button.ButtonText.fontStyle = (FontStyles)FontStyle.Normal;
     }
 
     private void DeselectButton()
